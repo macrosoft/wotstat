@@ -4,6 +4,7 @@
 import BigWorld
 from Account import Account
 from notification.NotificationListView import NotificationListView
+from messenger.formatters.service_channel import BattleResultsFormatter
 from debug_utils import *
 
 old_onBecomePlayer = Account.onBecomePlayer
@@ -15,15 +16,14 @@ def new_onBecomePlayer(self):
 Account.onBecomePlayer = new_onBecomePlayer
 
 
-old_populate = NotificationListView._populate
+old_nlv_populate = NotificationListView._populate
 
-def new_populate(self, target = 'SummaryMessage'):
-    old_populate(self)
-    LOG_NOTE("test")
+def new_nlv_populate(self, target = 'SummaryMessage'):
+    old_nlv_populate(self)
     msg = {
-        'type': 'red',
+        'type': 'black',
         'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
-        'message': 'Hello World!',
+        'message': 'Work in progress',
         'showMore': {
             'command': 'stat',
             'enabled': False,
@@ -38,4 +38,13 @@ def new_populate(self, target = 'SummaryMessage'):
     }
     self.as_appendMessageS(message)
 
-NotificationListView._populate = new_populate
+NotificationListView._populate = new_nlv_populate
+
+old_brf_format = BattleResultsFormatter.format
+
+def new_brf_format(self, message, *args):
+    old_brf_format(self, message, *args)
+    LOG_NOTE(message.data)
+
+BattleResultsFormatter.format = new_brf_format
+
