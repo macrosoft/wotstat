@@ -3,6 +3,8 @@
 
 import BigWorld
 from Account import Account
+from adisp import process
+from items import vehicles as vehicles_core
 from notification.NotificationListView import NotificationListView
 from messenger.formatters.service_channel import BattleResultsFormatter
 from debug_utils import *
@@ -44,7 +46,9 @@ old_brf_format = BattleResultsFormatter.format
 
 def new_brf_format(self, message, *args):
     old_brf_format(self, message, *args)
-    LOG_NOTE(message.data)
+    vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
+    vt = vehicles_core.getVehicleType(vehicleCompDesc)
+    LOG_NOTE(vt.name)
 
 BattleResultsFormatter.format = new_brf_format
 
