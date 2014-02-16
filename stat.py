@@ -25,6 +25,33 @@ def getDossier():
     stats['dCapPoints'] = dossier.getDroppedCapturePoints()
     LOG_NOTE(stats)
 
+class SessionStatistic(object):       
+    def __init__(self):
+        self.values = {}
+        
+    def reset(self):
+        selft.values = {
+            'startCredits' : 0,
+            'startTotalXp' : 0,
+            'startBattlesCount' : 0,
+            'startWinsCount' : 0,
+            'startDamageDealt' : 0,
+            'startFragsCount' : 0,
+            'startSpottedCount' : 0,
+            'startDCapPoints' : 0,
+            'lastCredits' : 0,
+            'lastTotalXp' : 0,
+            'lastBattlesCount' : 0,
+            'lastWinsCount' : 0,
+            'lastDamageDealt' : 0,
+            'lastFragsCount' : 0,
+            'lastSpottedCount' : 0,
+            'lastDCapPoints' : 0,
+        }
+
+    def getVal(self, name, default = 0):
+        return self.values.get(name, default)
+
 old_onBecomePlayer = Account.onBecomePlayer
 
 def new_onBecomePlayer(self):
@@ -41,7 +68,7 @@ def new_nlv_populate(self, target = 'SummaryMessage'):
     msg = {
         'type': 'black',
         'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
-        'message': 'Work in progress',
+        'message': stat.getVal('startCredits'),
         'showMore': {
             'command': 'stat',
             'enabled': False,
@@ -64,8 +91,10 @@ old_brf_format = BattleResultsFormatter.format
 def new_brf_format(self, message, *args):
     old_brf_format(self, message, *args)
     vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
+    LOG_NOTE(vehicleCompDesc)
     vt = vehicles_core.getVehicleType(vehicleCompDesc)
-    LOG_NOTE(vt.name)
+    LOG_NOTE(vt.shortUserString)
 
 BattleResultsFormatter.format = new_brf_format
 
+stat = SessionStatistic()
