@@ -15,6 +15,7 @@ from debug_utils import *
 def getDossier(callback):
     stats = {}
     stats['credits'] = yield StatsRequester().getCredits()
+    yield g_itemsCache.update(6)
     dossier = g_itemsCache.items.getAccountDossier().getTotalStats()
     stats['battlesCount'] = dossier.getBattlesCount()
     stats['winsCount'] = dossier.getWinsCount()
@@ -76,6 +77,7 @@ old_onBecomePlayer = Account.onBecomePlayer
 
 def new_onBecomePlayer(self):
     old_onBecomePlayer(self)
+    stat.load()
 
 Account.onBecomePlayer = new_onBecomePlayer
 
@@ -84,8 +86,9 @@ old_nlv_populate = NotificationListView._populate
 
 def new_nlv_populate(self, target = 'SummaryMessage'):
     old_nlv_populate(self)
-    stat.load()
     stat.updateDossier()
+    LOG_NOTE(stat.startValues)
+    LOG_NOTE(stat.lastValues)
     msg = createMessage(stat.printMessage())
     self.as_appendMessageS(msg)
 
