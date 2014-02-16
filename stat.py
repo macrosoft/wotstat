@@ -44,54 +44,38 @@ def createMessage(text):
     }
     return message
 
-class SessionStatistic(object):       
-    def __init__(self):
-        self.values = {}
-        
-    def reset(self):
-        selft.values = {
-            'startCredits' : 0,
-            'startTotalXp' : 0,
-            'startBattlesCount' : 0,
-            'startWinsCount' : 0,
-            'startDamageDealt' : 0,
-            'startFragsCount' : 0,
-            'startSpottedCount' : 0,
-            'startDCapPoints' : 0,
-            'lastCredits' : 0,
-            'lastTotalXp' : 0,
-            'lastBattlesCount' : 0,
-            'lastWinsCount' : 0,
-            'lastDamageDealt' : 0,
-            'lastFragsCount' : 0,
-            'lastSpottedCount' : 0,
-            'lastDCapPoints' : 0,
-        }
+class SessionStatistic(object):
+    loaded = False
 
-    def initDossier(self, dossier):
-        self.values['startCredits'] = dossier['credits']
-        self.values['startTotalXp'] = dossier['totalXP']
-        self.values['startBattlesCount'] = dossier['battlesCount']
-        self.values['startWinsCount'] = dossier['winsCount']
-        self.values['startDamageDealt'] = dossier['damageDealt']
-        self.values['startFragsCount'] = dossier['fragsCount']
-        self.values['startSpottedCount'] = dossier['spottedCount']
-        self.values['startDCapPoints'] = dossier['dCapPoints']
+    def __init__(self):
+        self.startValues = {}
+        self.lastValues = {}
+        self.values = {}
 
     def load(self):
-        getDossier(self.initDossier)
+        if not self.loaded:
+            getDossier(self.startValues.update)
+            self.loaded = True
 
-    def getValue(self, name, default = 0):
-        return self.values.get(name, default)
+    def updateDossier(self):
+        getDossier(self.lastValues.update)
+
+    def recalc(self):
+        for key in self.startValues.keys():
+            self.values[key] = self.lastValues[key] - self.startValues[key]
 
     def getValue(self, name, default = 0):
         return str(self.values.get(name, default))
+
+    def printMessage(self):
+        self.recalc()
+        return 'Credits: ' + self.getValue('credits')
+
 
 old_onBecomePlayer = Account.onBecomePlayer
 
 def new_onBecomePlayer(self):
     old_onBecomePlayer(self)
-    stat.load()
 
 Account.onBecomePlayer = new_onBecomePlayer
 
@@ -100,7 +84,9 @@ old_nlv_populate = NotificationListView._populate
 
 def new_nlv_populate(self, target = 'SummaryMessage'):
     old_nlv_populate(self)
-    msg = createMessage('Credits: ' + stat.getValue('startCredits'))
+    stat.load()
+    stat.updateDossier()
+    msg = createMessage(stat.printMessage())
     self.as_appendMessageS(msg)
 
 NotificationListView._populate = new_nlv_populate
@@ -108,11 +94,12 @@ NotificationListView._populate = new_nlv_populate
 old_brf_format = BattleResultsFormatter.format
 
 def new_brf_format(self, message, *args):
-    old_brf_format(self, message, *args)
+    result = old_brf_format(self, message, *args)
     vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
     LOG_NOTE(vehicleCompDesc)
     vt = vehicles_core.getVehicleType(vehicleCompDesc)
     LOG_NOTE(vt.shortUserString)
+    return result
 
 BattleResultsFormatter.format = new_brf_format
 
