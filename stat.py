@@ -52,6 +52,7 @@ class SessionStatistic(object):
 
     def __init__(self):
         self.loaded = False
+        self.cache = {}
         self.startValues = {}
         self.lastValues = {}
         self.values = {}
@@ -67,7 +68,6 @@ class SessionStatistic(object):
         if self.loaded:
             return
         self.loaded = True
-        getDossier(self.startValues.update)
         self.playerName = BigWorld.player().name
         path_items = minidom.parse(os.path.join(os.getcwd(), 'paths.xml')).getElementsByTagName('Path')
         for root in path_items:
@@ -79,18 +79,24 @@ class SessionStatistic(object):
                     templateFile = open(templateFilePath, 'r')
                     self.template = str(templateFile.read())
                     break
+        invalidCache = True
+        if os.path.isfile(self.statCacheFilePath):
+            with open(self.statCacheFilePath) as jsonCache:
+                self.cache = json.load(jsonCache)
+                if self.cache['date'] == self.startDate:
+                    self.startValues = self.cache['players'][self.playerName]['stats']
+                    self.vehicles = self.cache['players'][self.playerName]['vehicles']
+                    invalidCache = False
+        if invalidCache:
+            self.cache = {}
+            getDossier(self.startValues.update)
 
     def save(self):
         statCache = open(self.statCacheFilePath, 'w')
-        statCache.write(json.dumps({
-            'date': self.startDate,
-            'players': {
-                self.playerName: {
-                    "stats": self.startValues,
-                    "vehicles": self.vehicles
-                }
-            }
-        }))
+        self.cache['date'] = self.startDate
+        self.cache['players'][self.playerName]['stats'] = self.startValues
+        self.cache['players'][self.playerName]['vehicles'] = self.vehicles
+        statCache.write(json.dumps(self.cache))
         statCache.close()
 
     def addVehicle(self, idNum, name, tier):
