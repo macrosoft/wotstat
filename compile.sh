@@ -4,3 +4,4 @@
 mv stat.pyc ~/.wine/drive_c/Games/World_of_Tanks/res_mods/0.8.11/scripts/client/mods/
 mv __init__.pyc ~/.wine/drive_c/Games/World_of_Tanks/res_mods/0.8.11/scripts/client/mods/
 mv CameraNode.pyc ~/.wine/drive_c/Games/World_of_Tanks/res_mods/0.8.11/scripts/client/
+cp stat_template.txt ~/.wine/drive_c/Games/World_of_Tanks/res_mods/0.8.11/scripts/client/mods/

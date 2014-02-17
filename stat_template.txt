@@ -1,0 +1,8 @@
+<textformat leading='-2' tabstops='[65,105]'><font color='#D6D7D4'>WN8:<tab><font><b>?</b></font>
+WinRate:<tab><font><b>%(winsCount)s/%(battlesCount)s</b></font>
+Avg DMG:<tab><font><b>%(damageDealt)s</b></font>
+Avg FRAG:<tab><font><b>%(fragsCount)s</b></font>
+Avg SPOT:<tab><font><b>%(spottedCount)s</b></font>
+Avg DEF:<tab><font><b>%(dCapPoints)s</b></font>
+XP:<tab><font><b>%(totalXP)s</b></font>
+Credits:<tab><font><b>%(credits)s</b></font></font></textformat>

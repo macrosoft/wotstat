@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
 import BigWorld
 from Account import Account
 from adisp import process
@@ -9,6 +8,8 @@ from gui.shared.utils.requesters import StatsRequester
 from gui.shared import g_itemsCache
 from notification.NotificationListView import NotificationListView
 from messenger.formatters.service_channel import BattleResultsFormatter
+import os
+from xml.dom import minidom
 from debug_utils import *
 
 @process
@@ -46,17 +47,28 @@ def createMessage(text):
     return message
 
 class SessionStatistic(object):
-    loaded = False
 
     def __init__(self):
+        self.loaded = False
         self.startValues = {}
         self.lastValues = {}
         self.values = {}
+        self.template = ""
 
     def load(self):
-        if not self.loaded:
-            getDossier(self.startValues.update)
-            self.loaded = True
+        if self.loaded:
+            return
+        getDossier(self.startValues.update)
+        self.loaded = True
+        path_items = minidom.parse(os.path.join(os.getcwd(), 'paths.xml')).getElementsByTagName('Path')
+        for root in path_items:
+            path = os.path.join(os.getcwd(), root.childNodes[0].data)
+            if os.path.isdir(path):
+                templateFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_template.txt')
+                if os.path.isfile(templateFilePath):
+                    templateFile = open(templateFilePath, 'r')
+                    self.template = str(templateFile.read())
+                    break
 
     def updateDossier(self):
         getDossier(self.lastValues.update)
@@ -70,7 +82,7 @@ class SessionStatistic(object):
 
     def printMessage(self):
         self.recalc()
-        return 'Credits: ' + self.getValue('credits')
+        return self.template % self.values
 
 
 old_onBecomePlayer = Account.onBecomePlayer
