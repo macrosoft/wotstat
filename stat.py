@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import BigWorld
+import datetime
+import json
+import os
 from Account import Account
 from adisp import process
 from items import vehicles as vehicles_core
@@ -8,7 +11,6 @@ from gui.shared.utils.requesters import StatsRequester
 from gui.shared import g_itemsCache
 from notification.NotificationListView import NotificationListView
 from messenger.formatters.service_channel import BattleResultsFormatter
-import os
 from xml.dom import minidom
 from debug_utils import *
 
@@ -53,22 +55,50 @@ class SessionStatistic(object):
         self.startValues = {}
         self.lastValues = {}
         self.values = {}
-        self.template = ""
+        self.vehicles = []
+        self.template = ''
+        self.playerName = ''
+        if datetime.datetime.now().hour >= 4:
+            self.startDate = datetime.date.today().strftime('%Y-%m-%d')
+        else:
+            self.startDate = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
     def load(self):
         if self.loaded:
             return
-        getDossier(self.startValues.update)
         self.loaded = True
+        getDossier(self.startValues.update)
+        self.playerName = BigWorld.player().name
         path_items = minidom.parse(os.path.join(os.getcwd(), 'paths.xml')).getElementsByTagName('Path')
         for root in path_items:
             path = os.path.join(os.getcwd(), root.childNodes[0].data)
             if os.path.isdir(path):
                 templateFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_template.txt')
+                self.statCacheFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_cache.json')
                 if os.path.isfile(templateFilePath):
                     templateFile = open(templateFilePath, 'r')
                     self.template = str(templateFile.read())
                     break
+
+    def save(self):
+        statCache = open(self.statCacheFilePath, 'w')
+        statCache.write(json.dumps({
+            'date': self.startDate,
+            'players': {
+                self.playerName: {
+                    "stats": self.startValues,
+                    "vehicles": self.vehicles
+                }
+            }
+        }))
+        statCache.close()
+
+    def addVehicle(self, idNum, name, tier):
+        self.vehicles.append({
+            'idNum': idNum,
+            'name': name,
+            'tier': tier
+        })
 
     def updateDossier(self):
         getDossier(self.lastValues.update)
@@ -76,9 +106,6 @@ class SessionStatistic(object):
     def recalc(self):
         for key in self.startValues.keys():
             self.values[key] = self.lastValues[key] - self.startValues[key]
-
-    def getValue(self, name, default = 0):
-        return str(self.values.get(name, default))
 
     def printMessage(self):
         self.recalc()
@@ -99,8 +126,6 @@ old_nlv_populate = NotificationListView._populate
 def new_nlv_populate(self, target = 'SummaryMessage'):
     old_nlv_populate(self)
     stat.updateDossier()
-    LOG_NOTE(stat.startValues)
-    LOG_NOTE(stat.lastValues)
     msg = createMessage(stat.printMessage())
     self.as_appendMessageS(msg)
 
@@ -111,9 +136,9 @@ old_brf_format = BattleResultsFormatter.format
 def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
     vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
-    LOG_NOTE(vehicleCompDesc)
     vt = vehicles_core.getVehicleType(vehicleCompDesc)
-    LOG_NOTE(vt.shortUserString)
+    stat.addVehicle(vehicleCompDesc, vt.name, vt.level)
+    stat.save()
     return result
 
 BattleResultsFormatter.format = new_brf_format
