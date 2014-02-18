@@ -113,6 +113,7 @@ class SessionStatistic(object):
     def recalc(self):
         for key in self.startValues.keys():
             self.values[key] = self.lastValues[key] - self.startValues[key]
+        self.values['battlesCount'] = max(self.values['battlesCount'], 0)
         if self.values['battlesCount'] > 0:
             self.values['avgWinRate'] = float(self.values['winsCount'])/self.values['battlesCount']
             self.values['winRatePercent'] = int(self.values['avgWinRate'])*100
@@ -122,9 +123,16 @@ class SessionStatistic(object):
             self.values['avgDef'] = float(self.values['dCapPoints'])/self.values['battlesCount']
             self.values['avgXP'] = int(self.values['totalXP']/self.values['battlesCount'])
             self.values['avgCredits'] = int(self.values['credits']/self.values['battlesCount'])
+            while len(self.vehicles) > self.values['battlesCount']:
+                self.vehicles.pop(0)
+            totalTier = 0
+            for vehicle in self.vehicles:
+                totalTier += vehicle['tier']
+                pass
+            self.values['avgTier'] = float(totalTier)/self.values['battlesCount']
         else:
             for key in ['winRatePercent', 'avgWinRate', 'avgDmg', 'avgFrag', \
-                'avgSpot', 'avgDef', 'avgXP', 'avgCredits']:
+                'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier']:
                 self.values[key] = 0
 
     def printMessage(self):
