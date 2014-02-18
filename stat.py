@@ -92,8 +92,14 @@ class SessionStatistic(object):
             getDossier(self.startValues.update)
 
     def save(self):
+        if (len(self.startValues) == 0):
+            return
         statCache = open(self.statCacheFilePath, 'w')
         self.cache['date'] = self.startDate
+        if not self.cache.has_key('players'):
+            self.cache['players'] = {}
+        if not self.cache['players'].has_key(self.playerName):
+            self.cache['players'][self.playerName] = {}
         self.cache['players'][self.playerName]['stats'] = self.startValues
         self.cache['players'][self.playerName]['vehicles'] = self.vehicles
         statCache.write(json.dumps(self.cache))
