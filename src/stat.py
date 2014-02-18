@@ -114,16 +114,28 @@ class SessionStatistic(object):
         for key in self.startValues.keys():
             self.values[key] = self.lastValues[key] - self.startValues[key]
         if self.values['battlesCount'] > 0:
-            self.values['avgWinRate'] = self.values['winsCount']/self.values['battlesCount']
+            self.values['avgWinRate'] = float(self.values['winsCount'])/self.values['battlesCount']
+            self.values['winRatePercent'] = int(self.values['avgWinRate'])*100
+            self.values['avgDmg'] = float(self.values['damageDealt'])/self.values['battlesCount']
+            self.values['avgFrag'] = float(self.values['fragsCount'])/self.values['battlesCount']
+            self.values['avgSpot'] = float(self.values['spottedCount'])/self.values['battlesCount']
+            self.values['avgDef'] = float(self.values['dCapPoints'])/self.values['battlesCount']
+            self.values['avgXP'] = int(self.values['totalXP']/self.values['battlesCount'])
+            self.values['avgCredits'] = int(self.values['credits']/self.values['battlesCount'])
         else:
-            self.values['avgWinRate'] = 0
+            for key in ['winRatePercent', 'avgWinRate', 'avgDmg', 'avgFrag', \
+                'avgSpot', 'avgDef', 'avgXP', 'avgCredits']:
+                self.values[key] = 0
 
     def printMessage(self):
         self.recalc()
-        format = self.template
+        msg = self.template
         for key in self.values.keys():
-            format = format.replace('{{%s}}' % key, str(self.values[key]))
-        return format
+            if type(self.values[key]) is float:
+                msg = msg.replace('{{%s}}' % key, str(round(self.values[key], 2)))
+            else:
+                msg = msg.replace('{{%s}}' % key, str(self.values[key]))
+        return msg
 
 
 old_onBecomePlayer = Account.onBecomePlayer

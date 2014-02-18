@@ -1,8 +1,8 @@
-<textformat leading='-2' tabstops='[65,105]'><font color='#D6D7D4'>WN8:<tab><font><b>?</b></font>
-WinRate:<tab><font><b>{{winsCount}}/{{battlesCount}} ({{avgWinRate}}%)</b></font>
-Avg DMG:<tab><font><b>{{damageDealt}}</b></font>
-Avg FRAG:<tab><font><b>{{fragsCount}}</b></font>
-Avg SPOT:<tab><font><b>{{spottedCount}}</b></font>
-Avg DEF:<tab><font><b>{{dCapPoints}}</b></font>
-XP:<tab><font><b>{{totalXP}}</b></font>
-Credits:<tab><font><b>{{credits}}</b></font></font></textformat>
+<textformat leading='-2' tabstops='[55,120,190]'><font color='#D6D7D4'>WN8:<tab><font><b>1234</b></font><tab><font><b>56</b></font><tab><font color='#FFCC66'><b>7 </b></font>ур
+WinRate:<tab><font><b>{{winsCount}}/{{battlesCount}}<tab>{{winRatePercent}}%</b></font>
+DMG:<tab><font><b>{{damageDealt}}</b></font><tab><font><b>{{avgDmg}}</b></font>
+FRAG:<tab><font><b>{{fragsCount}}</b></font><tab><font><b>{{avgFrag}}</b></font>
+SPOT:<tab><font><b>{{spottedCount}}</b></font><tab><font><b>{{avgSpot}}</b></font>
+DEF:<tab><font><b>{{dCapPoints}}</b></font><tab><font><b>{{avgDef}}</b></font>
+XP:<tab><font><b>{{totalXP}}</b></font><tab><font><b>{{avgXP}}</b></font>
+Credits:<tab><font><b>{{credits}}</b></font><tab><font><b>{{avgCredits}}</b></font></font></textformat>
