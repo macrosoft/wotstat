@@ -59,10 +59,9 @@ class SessionStatistic(object):
         self.vehicles = []
         self.template = ''
         self.playerName = ''
-        if datetime.datetime.now().hour >= 4:
-            self.startDate = datetime.date.today().strftime('%Y-%m-%d')
-        else:
-            self.startDate = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+        self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
+            if datetime.datetime.now().hour >= 4 \
+            else (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
 
     def load(self):
         if self.loaded:
@@ -106,11 +105,7 @@ class SessionStatistic(object):
         statCache.close()
 
     def addVehicle(self, idNum, name, tier):
-        self.vehicles.append({
-            'idNum': idNum,
-            'name': name,
-            'tier': tier
-        })
+        self.vehicles.append({'idNum': idNum, 'name': name, 'tier': tier})
 
     def updateDossier(self):
         getDossier(self.lastValues.update)
@@ -118,10 +113,17 @@ class SessionStatistic(object):
     def recalc(self):
         for key in self.startValues.keys():
             self.values[key] = self.lastValues[key] - self.startValues[key]
+        if self.values['battlesCount'] > 0:
+            self.values['avgWinRate'] = self.values['winsCount']/self.values['battlesCount']
+        else:
+            self.values['avgWinRate'] = 0
 
     def printMessage(self):
         self.recalc()
-        return self.template % self.values
+        format = self.template
+        for key in self.values.keys():
+            format = format.replace('{{%s}}' % key, str(self.values[key]))
+        return format
 
 
 old_onBecomePlayer = Account.onBecomePlayer
