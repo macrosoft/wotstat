@@ -156,7 +156,11 @@ class SessionStatistic(object):
             self.values['expSpot'] = max(1, self.values['avgSpot'])
             self.values['expDef'] = max(1, self.values['avgDef'])
             self.values['expWinRate'] = max(1, self.values['avgWinRate'])
-        LOG_NOTE(self.values)
+        self.values['rDAMAGE'] = self.values['avgDmg']/self.values['expDmg']
+        self.values['rSPOT'] = self.values['avgSpot']/self.values['expSpot']
+        self.values['rFRAG'] = self.values['avgFrag']/self.values['expFrag']
+        self.values['rDEF'] = self.values['avgDef']/self.values['expDef']
+        self.values['rWIN'] = self.values['avgWinRate']/self.values['expWinRate']
 
     def printMessage(self):
         self.recalc()
