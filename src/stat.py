@@ -140,7 +140,7 @@ class SessionStatistic(object):
             totalExp['total_' + key] = 0
         for vehicle in self.vehicles:
             idNum = vehicle['idNum']
-            totalExp['total_avgTier'] += vehicle['tier']
+            totalExp['total_avgTier'] += float(vehicle['tier'])
             totalExp['total_expDmg'] += float(self.expectedValues[idNum]['expDamage'])
             totalExp['total_expFrag'] += float(self.expectedValues[idNum]['expFrag'])
             totalExp['total_expSpot'] += float(self.expectedValues[idNum]['expSpot'])
@@ -161,6 +161,20 @@ class SessionStatistic(object):
         self.values['rFRAG'] = self.values['avgFrag']/self.values['expFrag']
         self.values['rDEF'] = self.values['avgDef']/self.values['expDef']
         self.values['rWIN'] = self.values['avgWinRate']/self.values['expWinRate']
+        self.values['rWINc'] = max(0, (self.values['rWIN'] - 0.71)/(1 - 0.71))
+        self.values['rDAMAGEc'] = max(0, (self.values['rDAMAGE'] - 0.22)/(1 - 0.22))
+        self.values['rFRAGc'] = max(0, min(self.values['rDAMAGEc'] + 0.2, (self.values['rFRAG'] - 0.12)/(1 - 0.12)))
+        self.values['rSPOTc'] = max(0, min(self.values['rDAMAGEc'] + 0.1, (self.values['rSPOT'] - 0.38)/(1 - 0.38)))
+        self.values['rDEFc'] = max(0, min(self.values['rDAMAGEc'] + 0.1, (self.values['rDEF'] - 0.10)/(1 - 0.10)))
+        self.values['WN8'] = 980*self.values['rDAMAGEc'] + 210*self.values['rDAMAGEc']*self.values['rFRAGc'] + \
+            155*self.values['rFRAGc']*self.values['rSPOTc'] + 75*self.values['rSPOTc']*self.values['rFRAGc'] + \
+            145*min(1.8, self.values['rWINc'])
+        self.values['XWN8'] = 100 if self.values['WN8'] > 3250 \
+            else int(max(min(self.values['WN8']*(self.values['WN8']*\
+            (self.values['WN8']*(self.values['WN8']*(self.values['WN8']*\
+            (0.00000000000000000007119*self.values['WN8'] + 0.0000000000000002334) - \
+            0.000000000006963) + 0.00000002845) - 0.00004558) + 0.06565) - 0.18, 100), 0))
+        self.values['WN8'] = int(self.values['WN8'])
 
     def printMessage(self):
         self.recalc()

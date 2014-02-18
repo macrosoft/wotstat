@@ -1,4 +1,4 @@
-<textformat leading='-2' tabstops='[55,120,190]'><font color='#D6D7D4'>WN8:<tab><font><b>1234<tab>56</b></font><tab><font color='#FFCC66'><b>{{avgTier}} </b></font>ур
+<textformat leading='-2' tabstops='[55,120,190]'><font color='#D6D7D4'>WN8:<tab><font><b>{{WN8}}<tab>{{XWN8}}</b></font><tab><font color='#FFCC66'><b>{{avgTier}} </b></font>ур
 WinRate:<tab><font><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>
 DMG:<tab><font><b>{{damageDealt}}<tab>{{avgDmg}}<tab>{{rDAMAGE}}</b></font>
 FRAG:<tab><font><b>{{fragsCount}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>
