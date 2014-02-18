@@ -122,25 +122,41 @@ class SessionStatistic(object):
             self.values[key] = self.lastValues[key] - self.startValues[key]
         self.values['battlesCount'] = max(self.values['battlesCount'], 0)
         if self.values['battlesCount'] > 0:
-            self.values['avgWinRate'] = float(self.values['winsCount'])/self.values['battlesCount']
-            self.values['winRatePercent'] = int(self.values['avgWinRate'])*100
+            self.values['avgWinRate'] = float(self.values['winsCount'])/self.values['battlesCount']*100
             self.values['avgDmg'] = float(self.values['damageDealt'])/self.values['battlesCount']
             self.values['avgFrag'] = float(self.values['fragsCount'])/self.values['battlesCount']
             self.values['avgSpot'] = float(self.values['spottedCount'])/self.values['battlesCount']
             self.values['avgDef'] = float(self.values['dCapPoints'])/self.values['battlesCount']
             self.values['avgXP'] = int(self.values['totalXP']/self.values['battlesCount'])
             self.values['avgCredits'] = int(self.values['credits']/self.values['battlesCount'])
-            while len(self.vehicles) > self.values['battlesCount']:
-                self.vehicles.pop(0)
-            totalTier = 0
-            for vehicle in self.vehicles:
-                totalTier += vehicle['tier']
-                LOG_NOTE(self.expectedValues[vehicle['idNum']])
-            self.values['avgTier'] = float(totalTier)/self.values['battlesCount']
         else:
-            for key in ['winRatePercent', 'avgWinRate', 'avgDmg', 'avgFrag', \
-                'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier']:
+            for key in ['avgWinRate', 'avgDmg', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits']:
                 self.values[key] = 0
+        while len(self.vehicles) > self.values['battlesCount']:
+            self.vehicles.pop(0)
+        vehiclesKeys = ['avgTier', 'expDmg', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
+        totalExp = {}
+        for key in vehiclesKeys:
+            totalExp['total_' + key] = 0
+        for vehicle in self.vehicles:
+            idNum = vehicle['idNum']
+            totalExp['total_avgTier'] += vehicle['tier']
+            totalExp['total_expDmg'] += float(self.expectedValues[idNum]['expDamage'])
+            totalExp['total_expFrag'] += float(self.expectedValues[idNum]['expFrag'])
+            totalExp['total_expSpot'] += float(self.expectedValues[idNum]['expSpot'])
+            totalExp['total_expDef'] += float(self.expectedValues[idNum]['expDef'])
+            totalExp['total_expWinRate'] += float(self.expectedValues[idNum]['expWinRate'])
+        if len(self.vehicles) > 0:
+            for key in vehiclesKeys:
+                self.values[key] = totalExp['total_' + key]/len(self.vehicles)
+        else:
+            self.values['avgTier'] = 0
+            self.values['expDmg'] = max(1, self.values['avgDmg'])
+            self.values['expFrag'] = max(1, self.values['avgFrag'])
+            self.values['expSpot'] = max(1, self.values['avgSpot'])
+            self.values['expDef'] = max(1, self.values['avgDef'])
+            self.values['expWinRate'] = max(1, self.values['avgWinRate'])
+        LOG_NOTE(self.values)
 
     def printMessage(self):
         self.recalc()
