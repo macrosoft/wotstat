@@ -53,6 +53,7 @@ class SessionStatistic(object):
     def __init__(self):
         self.loaded = False
         self.cache = {}
+        self.expectedValues = {}
         self.startValues = {}
         self.lastValues = {}
         self.values = {}
@@ -73,11 +74,17 @@ class SessionStatistic(object):
             path = os.path.join(os.getcwd(), root.childNodes[0].data)
             if os.path.isdir(path):
                 templateFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_template.txt')
+                expectedValuesPath = os.path.join(path, 'scripts', 'client', 'mods', 'expected_tank_values.json')
                 self.statCacheFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_cache.json')
                 if os.path.isfile(templateFilePath):
-                    templateFile = open(templateFilePath, 'r')
-                    self.template = str(templateFile.read())
                     break
+        templateFile = open(templateFilePath, 'r')
+        self.template = str(templateFile.read())
+        with open(expectedValuesPath) as origExpectedValuesJson:
+            origExpectedValues = json.load(origExpectedValuesJson)
+            for tankValues in origExpectedValues['data']:
+                idNum = tankValues.pop('IDNum')
+                self.expectedValues[int(idNum)] = tankValues
         invalidCache = True
         if os.path.isfile(self.statCacheFilePath):
             with open(self.statCacheFilePath) as jsonCache:
@@ -128,7 +135,7 @@ class SessionStatistic(object):
             totalTier = 0
             for vehicle in self.vehicles:
                 totalTier += vehicle['tier']
-                pass
+                LOG_NOTE(self.expectedValues[vehicle['idNum']])
             self.values['avgTier'] = float(totalTier)/self.values['battlesCount']
         else:
             for key in ['winRatePercent', 'avgWinRate', 'avgDmg', 'avgFrag', \
