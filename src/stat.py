@@ -89,12 +89,14 @@ class SessionStatistic(object):
         if os.path.isfile(self.statCacheFilePath):
             with open(self.statCacheFilePath) as jsonCache:
                 self.cache = json.load(jsonCache)
-                if self.cache['date'] == self.startDate:
-                    self.startValues = self.cache['players'][self.playerName]['stats']
-                    self.vehicles = self.cache['players'][self.playerName]['vehicles']
+                if self.cache.get('date', '') == self.startDate:
+                    if self.cache.get('players', {}).has_key(self.playerName):
+                        self.startValues = self.cache['players'][self.playerName]['stats']
+                        self.vehicles = self.cache['players'][self.playerName]['vehicles']
                     invalidCache = False
         if invalidCache:
             self.cache = {}
+        if len(self.startValues) == 0:
             getDossier(self.startValues.update)
 
     def save(self):
