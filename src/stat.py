@@ -15,7 +15,7 @@ from xml.dom import minidom
 from debug_utils import *
 
 @process
-def getDossier(callback):
+def getDossier(callback1, callback2 = None):
     stats = {}
     stats['credits'] = yield StatsRequester().getCredits()
     yield g_itemsCache.update(6)
@@ -27,7 +27,9 @@ def getDossier(callback):
     stats['fragsCount'] = dossier.getFragsCount()
     stats['spottedCount'] = dossier.getSpottedEnemiesCount()
     stats['dCapPoints'] = dossier.getDroppedCapturePoints()
-    callback(stats)
+    callback1(stats)
+    if callback2 is not None:
+        callback2()
 
 def createMessage(text):
     msg = {
@@ -97,7 +99,7 @@ class SessionStatistic(object):
         if invalidCache:
             self.cache = {}
         if len(self.startValues) == 0:
-            getDossier(self.startValues.update)
+            getDossier(self.startValues.update, self.save)
 
     def save(self):
         if (len(self.startValues) == 0):
