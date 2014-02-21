@@ -6,7 +6,7 @@ import json
 import os
 from Account import Account
 from adisp import process
-from items import vehicles as vehicles_core
+from items import vehicles as vehiclesWG
 from gui.shared.utils.requesters import StatsRequester
 from gui.shared import g_itemsCache
 from notification.NotificationListView import NotificationListView
@@ -121,6 +121,36 @@ class SessionStatistic(object):
     def updateDossier(self):
         getDossier(self.lastValues.update)
 
+    def calcExpected(self, newIdNum):
+        v = vehiclesWG.getVehicleType(newIdNum)
+        newTier = v.level
+        newType = set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(v.tags)).pop()
+        if newTier < 1 or newTier > 10:
+            newTier = 10
+        tierExpected = {}
+        tierExpectedCount = 0.0
+        typeExpected = {}
+        typeExpectedCount = 0.0
+        for idNum in self.expectedValues:
+            vt = vehiclesWG.getVehicleType(idNum)
+            if vt.level == newTier:
+                tierExpectedCount += 1
+                vType = set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(vt.tags)).pop()
+                if vType == newType:
+                    typeExpectedCount += 1
+                for key in self.expectedValues[idNum]:
+                    tierExpected[key] = tierExpected.get(key, 0) + float(self.expectedValues[idNum].get(key, 0))
+                    if vType == newType:
+                        typeExpected[key] = typeExpected.get(key, 0) + float(self.expectedValues[idNum].get(key, 0))
+        if typeExpectedCount > 0:
+            for key in typeExpected:
+                typeExpected[key] /= typeExpectedCount
+            self.expectedValues[newIdNum] = typeExpected.copy()
+            return
+        for key in tierExpected:
+            tierExpected[key] /= tierExpectedCount
+        self.expectedValues[newIdNum] = tierExpected.copy()
+
     def recalc(self):
         for key in self.startValues.keys():
             self.values[key] = self.lastValues[key] - self.startValues[key]
@@ -144,6 +174,8 @@ class SessionStatistic(object):
             totalExp['total_' + key] = 0
         for vehicle in self.vehicles:
             idNum = vehicle['idNum']
+            if not self.expectedValues.has_key(idNum):
+                self.calcExpected(idNum)
             totalExp['total_avgTier'] += float(vehicle['tier'])
             totalExp['total_expDmg'] += float(self.expectedValues[idNum]['expDamage'])
             totalExp['total_expFrag'] += float(self.expectedValues[idNum]['expFrag'])
@@ -215,7 +247,7 @@ old_brf_format = BattleResultsFormatter.format
 def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
     vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
-    vt = vehicles_core.getVehicleType(vehicleCompDesc)
+    vt = vehiclesWG.getVehicleType(vehicleCompDesc)
     stat.addVehicle(vehicleCompDesc, vt.name, vt.level)
     stat.save()
     return result
