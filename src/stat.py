@@ -55,12 +55,12 @@ class SessionStatistic(object):
     def __init__(self):
         self.loaded = False
         self.cache = {}
+        self.config = {}
         self.expectedValues = {}
         self.startValues = {}
         self.lastValues = {}
         self.values = {}
         self.vehicles = []
-        self.template = ''
         self.playerName = ''
         self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
             if datetime.datetime.now().hour >= 4 \
@@ -75,13 +75,13 @@ class SessionStatistic(object):
         for root in path_items:
             path = os.path.join(os.getcwd(), root.childNodes[0].data)
             if os.path.isdir(path):
-                templateFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_template.txt')
+                configFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_config.json')
                 expectedValuesPath = os.path.join(path, 'scripts', 'client', 'mods', 'expected_tank_values.json')
                 self.statCacheFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_cache.json')
-                if os.path.isfile(templateFilePath):
+                if os.path.isfile(configFilePath):
                     break
-        templateFile = open(templateFilePath, 'r')
-        self.template = str(templateFile.read())
+        with open(configFilePath) as configFileJson:
+            self.config = json.load(configFileJson)
         with open(expectedValuesPath) as origExpectedValuesJson:
             origExpectedValues = json.load(origExpectedValuesJson)
             for tankValues in origExpectedValues['data']:
@@ -214,7 +214,7 @@ class SessionStatistic(object):
 
     def printMessage(self):
         self.recalc()
-        msg = self.template
+        msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
             if type(self.values[key]) is float:
                 msg = msg.replace('{{%s}}' % key, str(round(self.values[key], 2)))

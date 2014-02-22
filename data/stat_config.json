@@ -1,0 +1,12 @@
+{
+    "template": [
+        "<textformat leading='-2' tabstops='[55,120,190]'><font color='#D6D7D4'>WN8:<tab><font><b>{{WN8}}<tab>{{XWN8}}</b></font><tab><font color='#FFCC66'><b>{{avgTier}} </b></font>ур",
+        "WinRate:<tab><font><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
+        "DMG:<tab><font><b>{{damageDealt}}<tab>{{avgDmg}}<tab>{{rDAMAGE}}</b></font>",
+        "FRAG:<tab><font><b>{{fragsCount}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
+        "SPOT:<tab><font><b>{{spottedCount}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
+        "DEF:<tab><font><b>{{dCapPoints}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
+        "XP:<tab><font><b>{{totalXP}}<tab>{{avgXP}}</b></font>",
+        "Credits:<tab><font><b>{{credits}}<tab>{{avgCredits}}</b></font></font></textformat>"
+    ]
+}
