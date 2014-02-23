@@ -1,12 +1,74 @@
 {
     "template": [
-        "<textformat leading='-2' tabstops='[55,120,190]'><font color='#D6D7D4'>WN8:<tab><font><b>{{WN8}}<tab>{{XWN8}}</b></font><tab><font color='#FFCC66'><b>{{avgTier}} </b></font>ур",
-        "WinRate:<tab><font><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
-        "DMG:<tab><font><b>{{damageDealt}}<tab>{{avgDmg}}<tab>{{rDAMAGE}}</b></font>",
-        "FRAG:<tab><font><b>{{fragsCount}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
-        "SPOT:<tab><font><b>{{spottedCount}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
-        "DEF:<tab><font><b>{{dCapPoints}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
-        "XP:<tab><font><b>{{totalXP}}<tab>{{avgXP}}</b></font>",
-        "Credits:<tab><font><b>{{credits}}<tab>{{avgCredits}}</b></font></font></textformat>"
-    ]
+        "<textformat leading='-2' tabstops='[55,120,190]'><font color='#FFCC66'>WN8:</font><tab><font color='{{c:WN8}}'><b>{{WN8}}<tab>{{XWN8}}</b></font><tab><font color='#FFCC66'><b>{{avgTier}} </b>ур</font>",
+        "<font color='#FFCC66'>WinRate:</font><tab><font color='{{c:rWIN}}'><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
+        "<font color='#FFCC66'>DMG:</font><tab><font color='{{c:rDAMAGE}}'><b>{{damageDealt}}<tab>{{avgDmg}}<tab>{{rDAMAGE}}</b></font>",
+        "<font color='#FFCC66'>FRAG:</font><tab><font color='{{c:rFRAG}}'><b>{{fragsCount}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
+        "<font color='#FFCC66'>SPOT:</font><tab><font color='{{c:rSPOT}}'><b>{{spottedCount}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
+        "<font color='#FFCC66'>DEF:</font><tab><font color='{{c:rDEF}}'><b>{{dCapPoints}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
+        "<font color='#FFCC66'>XP:</font><tab><font color='{{c:avgXP}}'><b>{{totalXP}}<tab>{{avgXP}}</b></font>",
+        "<font color='#FFCC66'>Credits:</font><tab><font color='{{c:credits}}'><b>{{credits}}<tab>{{avgCredits}}</b></font></textformat>"
+    ],
+    "colors": {
+        "WN8": [
+            {"value": 158, "color": "#FE0E00"},
+            {"value": 535, "color": "#FE7903"},
+            {"value": 1035, "color": "#F8F400"},
+            {"value": 1640, "color": "#60FF00"},
+            {"value": 2245, "color": "#02C9B3"},
+            {"value": 3250, "color": "#D042F3"}
+        ],
+        "rWIN": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.41, "color": "#FE7903"},
+            {"value": 0.72, "color": "#F8F400"},
+            {"value": 1.04, "color": "#60FF00"},
+            {"value": 1.32, "color": "#02C9B3"},
+            {"value": 1.73, "color": "#D042F3"}
+        ],
+        "rDAMAGE": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.41, "color": "#FE7903"},
+            {"value": 0.72, "color": "#F8F400"},
+            {"value": 1.04, "color": "#60FF00"},
+            {"value": 1.32, "color": "#02C9B3"},
+            {"value": 1.73, "color": "#D042F3"}
+        ],
+        "rFRAG": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.41, "color": "#FE7903"},
+            {"value": 0.72, "color": "#F8F400"},
+            {"value": 1.04, "color": "#60FF00"},
+            {"value": 1.32, "color": "#02C9B3"},
+            {"value": 1.73, "color": "#D042F3"}
+        ],
+        "rSPOT": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.41, "color": "#FE7903"},
+            {"value": 0.72, "color": "#F8F400"},
+            {"value": 1.04, "color": "#60FF00"},
+            {"value": 1.32, "color": "#02C9B3"},
+            {"value": 1.73, "color": "#D042F3"}
+        ],
+        "rDEF": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.41, "color": "#FE7903"},
+            {"value": 0.72, "color": "#F8F400"},
+            {"value": 1.04, "color": "#60FF00"},
+            {"value": 1.32, "color": "#02C9B3"},
+            {"value": 1.73, "color": "#D042F3"}
+        ],
+        "avgXP": [
+            {"value": 0, "color": "#FE0E00"},
+            {"value": 120, "color": "#FE7903"},
+            {"value": 280, "color": "#F8F400"},
+            {"value": 500, "color": "#60FF00"},
+            {"value": 800, "color": "#02C9B3"},
+            {"value": 1000, "color": "#D042F3"}
+        ],
+        "credits": [
+            {"value": -1, "color": "#FE0E00"},
+            {"value": 1, "color": "#60FF00"}
+        ]
+    }
 }

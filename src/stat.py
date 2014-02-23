@@ -50,6 +50,17 @@ def createMessage(text):
     }
     return message
 
+def hexToRgb(hex):
+    return [int(hex[i:i+2], 16) for i in range(1,6,2)] 
+
+def gradColor(startColor, endColor, val):
+    start = hexToRgb(startColor)
+    end = hexToRgb(endColor)
+    grad = []
+    for i in [0, 1, 2]:
+        grad.append(start[i]*(1.0 - val) + end[i]*val)
+    return '#%02x%02x%02x' % (grad[0], grad[1], grad[2])
+
 class SessionStatistic(object):
 
     def __init__(self):
@@ -60,6 +71,7 @@ class SessionStatistic(object):
         self.startValues = {}
         self.lastValues = {}
         self.values = {}
+        self.colors = {}
         self.vehicles = []
         self.playerName = ''
         self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
@@ -121,6 +133,31 @@ class SessionStatistic(object):
     def updateDossier(self):
         getDossier(self.lastValues.update)
 
+    def refreshColorMacros(self):
+        if self.values['battlesCount'] == 0:
+            for key in self.values.keys():
+                self.colors[key] = '#FFFFFF'
+            return
+        for key in self.values.keys():
+            if self.config['colors'].has_key(key):
+                clrs = self.config['colors'][key]
+                if self.values[key] <= clrs[0]['value']:
+                    self.colors[key] = clrs[0]['color']
+                elif self.values[key] >= clrs[-1]['value']:
+                    self.colors[key] = clrs[-1]['color']
+                else:
+                    sVal = clrs[0]['value']
+                    eVal = clrs[1]['value']
+                    i = 1
+                    while eVal < self.values[key]:
+                        sVal = clrs[i]['value']
+                        i += 1
+                        eVal = clrs[i]['value']
+                    val = float(self.values[key] - sVal)/(eVal - sVal)
+                    self.colors[key] = gradColor(clrs[i - 1]['color'], clrs[i]['color'], val)
+            else:
+                self.colors[key] = '#FFFFFF'
+    
     def calcExpected(self, newIdNum):
         v = vehiclesWG.getVehicleType(newIdNum)
         newTier = v.level
@@ -211,6 +248,7 @@ class SessionStatistic(object):
             (0.00000000000000000007119*self.values['WN8'] + 0.0000000000000002334) - \
             0.000000000006963) + 0.00000002845) - 0.00004558) + 0.06565) - 0.18, 100), 0))
         self.values['WN8'] = int(self.values['WN8'])
+        self.refreshColorMacros()
 
     def printMessage(self):
         self.recalc()
@@ -220,6 +258,7 @@ class SessionStatistic(object):
                 msg = msg.replace('{{%s}}' % key, str(round(self.values[key], 2)))
             else:
                 msg = msg.replace('{{%s}}' % key, str(self.values[key]))
+            msg = msg.replace('{{c:%s}}' % key, self.colors[key])
         return msg
 
 
