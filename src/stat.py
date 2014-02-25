@@ -244,9 +244,9 @@ class SessionStatistic(object):
             145*min(1.8, self.values['rWINc'])
         self.values['XWN8'] = 100 if self.values['WN8'] > 3250 \
             else int(max(min(self.values['WN8']*(self.values['WN8']*\
-            (self.values['WN8']*(self.values['WN8']*(self.values['WN8']*\
-            (0.00000000000000000007119*self.values['WN8'] + 0.0000000000000002334) - \
-            0.000000000006963) + 0.00000002845) - 0.00004558) + 0.06565) - 0.18, 100), 0))
+            (self.values['WN8']*(self.values['WN8']*(self.values['WN8']\
+            *(0.0000000000000000000812*self.values['WN8'] + 0.0000000000000001616) - \
+            0.000000000006736) + 0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
         self.values['WN8'] = int(self.values['WN8'])
         self.refreshColorMacros()
 
