@@ -5,12 +5,16 @@ import datetime
 import json
 import os
 from Account import Account
+from account_helpers import BattleResultsCache
 from adisp import process
 from items import vehicles as vehiclesWG
 from gui.shared.utils.requesters import StatsRequester
 from gui.shared import g_itemsCache
 from notification.NotificationListView import NotificationListView
 from messenger.formatters.service_channel import BattleResultsFormatter
+from time import sleep
+from threading import Thread
+from Queue import Queue
 from xml.dom import minidom
 from debug_utils import *
 
@@ -64,6 +68,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
+        self.queue = Queue()
         self.loaded = False
         self.cache = {}
         self.config = {}
@@ -112,6 +117,9 @@ class SessionStatistic(object):
             self.cache = {}
         if len(self.startValues) == 0:
             getDossier(self.startValues.update, self.save)
+        self.thread = Thread(target=self.mainLoop)
+        self.thread.setDaemon(True)
+        self.thread.start()
 
     def save(self):
         if (len(self.startValues) == 0):
@@ -126,6 +134,18 @@ class SessionStatistic(object):
         self.cache['players'][self.playerName]['vehicles'] = self.vehicles
         statCache.write(json.dumps(self.cache))
         statCache.close()
+
+    def mainLoop(self):
+        arenaUniqueID = -1
+        while True:
+            if arenaUniqueID < 0:
+                arenaUniqueID = self.queue.get()
+            if not hasattr(BigWorld.player(), 'battleResultsCache'):
+                sleep(1)
+                LOG_NOTE('Zzz...')
+                continue
+            BigWorld.player().battleResultsCache.get(arenaUniqueID, battleResultsCallback)
+            arenaUniqueID = -1
 
     def addVehicle(self, idNum, name, tier):
         self.vehicles.append({'idNum': idNum, 'name': name, 'tier': tier})
@@ -244,8 +264,8 @@ class SessionStatistic(object):
             145*min(1.8, self.values['rWINc'])
         self.values['XWN8'] = 100 if self.values['WN8'] > 3250 \
             else int(max(min(self.values['WN8']*(self.values['WN8']*\
-            (self.values['WN8']*(self.values['WN8']*(self.values['WN8']\
-            *(0.0000000000000000000812*self.values['WN8'] + 0.0000000000000001616) - \
+            (self.values['WN8']*(self.values['WN8']*(self.values['WN8']*\
+            (0.0000000000000000000812*self.values['WN8'] + 0.0000000000000001616) - \
             0.000000000006736) + 0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
         self.values['WN8'] = int(self.values['WN8'])
         self.refreshColorMacros()
@@ -263,6 +283,9 @@ class SessionStatistic(object):
 
 
 old_onBecomePlayer = Account.onBecomePlayer
+
+def battleResultsCallback(responseCode, value = None, revision = 0):
+    LOG_NOTE(value)
 
 def new_onBecomePlayer(self):
     old_onBecomePlayer(self)
@@ -289,6 +312,8 @@ def new_brf_format(self, message, *args):
     vt = vehiclesWG.getVehicleType(vehicleCompDesc)
     stat.addVehicle(vehicleCompDesc, vt.name, vt.level)
     stat.save()
+    arenaUniqueID = message.data.get('arenaUniqueID', 0)
+    stat.queue.put(arenaUniqueID)
     return result
 
 BattleResultsFormatter.format = new_brf_format
