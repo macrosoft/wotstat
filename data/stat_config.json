@@ -7,7 +7,7 @@
         "<font color='#FFCC66'>SPOT:</font><tab><font color='{{c:rSPOT}}'><b>{{spottedCount}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
         "<font color='#FFCC66'>DEF:</font><tab><font color='{{c:rDEF}}'><b>{{dCapPoints}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
         "<font color='#FFCC66'>XP:</font><tab><font color='{{c:avgXP}}'><b>{{totalXP}}<tab>{{avgXP}}</b></font>",
-        "<font color='#FFCC66'>Credits:</font><tab><font color='{{c:credits}}'><b>{{credits}}<tab>{{avgCredits}}</b></font></textformat>"
+        "<font color='#FFCC66'>Credits:</font><tab><font color='{{c:credits}}'><b>{{credits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'><tab>{{avgCredits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'></b></font></textformat>"
     ],
     "colors": {
         "WN8": [

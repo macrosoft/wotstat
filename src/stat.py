@@ -147,9 +147,6 @@ class SessionStatistic(object):
             BigWorld.player().battleResultsCache.get(arenaUniqueID, battleResultsCallback)
             arenaUniqueID = -1
 
-    def addVehicle(self, idNum, name, tier):
-        self.vehicles.append({'idNum': idNum, 'name': name, 'tier': tier})
-
     def updateDossier(self):
         getDossier(self.lastValues.update)
 
@@ -285,6 +282,20 @@ class SessionStatistic(object):
 old_onBecomePlayer = Account.onBecomePlayer
 
 def battleResultsCallback(responseCode, value = None, revision = 0):
+    vehicleCompDesc = value['personal']['typeCompDescr']
+    vt = vehiclesWG.getVehicleType(vehicleCompDesc)
+    win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
+    stat.vehicles.append({
+        'idNum': vehicleCompDesc,
+        'name': vt.name,
+        'tier': vt.level,
+        'win': win,
+        'damage': value['personal']['damageDealt'],
+        'frag': value['personal']['kills'],
+        'spot': value['personal']['spotted'],
+        'def': value['personal']['droppedCapturePoints']
+        })
+    stat.save()
     LOG_NOTE(value)
 
 def new_onBecomePlayer(self):
@@ -308,10 +319,6 @@ old_brf_format = BattleResultsFormatter.format
 
 def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
-    vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
-    vt = vehiclesWG.getVehicleType(vehicleCompDesc)
-    stat.addVehicle(vehicleCompDesc, vt.name, vt.level)
-    stat.save()
     arenaUniqueID = message.data.get('arenaUniqueID', 0)
     stat.queue.put(arenaUniqueID)
     return result
