@@ -9,7 +9,6 @@ from account_helpers import BattleResultsCache
 from adisp import process
 from items import vehicles as vehiclesWG
 from gui.shared.utils.requesters import StatsRequester
-from gui.shared import g_itemsCache
 from notification.NotificationListView import NotificationListView
 from messenger.formatters.service_channel import BattleResultsFormatter
 from time import sleep
@@ -18,22 +17,27 @@ from Queue import Queue
 from xml.dom import minidom
 from debug_utils import *
 
-@process
-def getDossier(callback1, callback2 = None):
-    stats = {}
-    stats['credits'] = yield StatsRequester().getCredits()
-    yield g_itemsCache.update(6)
-    dossier = g_itemsCache.items.getAccountDossier().getTotalStats()
-    stats['battlesCount'] = dossier.getBattlesCount()
-    stats['winsCount'] = dossier.getWinsCount()
-    stats['totalXP'] = dossier.getXP()
-    stats['damageDealt'] = dossier.getDamageDealt()
-    stats['fragsCount'] = dossier.getFragsCount()
-    stats['spottedCount'] = dossier.getSpottedEnemiesCount()
-    stats['dCapPoints'] = dossier.getDroppedCapturePoints()
-    callback1(stats)
-    if callback2 is not None:
-        callback2()
+def battleResultsCallback(responseCode, value = None, revision = 0):
+    if responseCode < 0:
+        return
+    vehicleCompDesc = value['personal']['typeCompDescr']
+    vt = vehiclesWG.getVehicleType(vehicleCompDesc)
+    win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
+    stat.battles.append({
+        'idNum': vehicleCompDesc,
+        'name': vt.name,
+        'tier': vt.level,
+        'win': win,
+        'damage': value['personal']['damageDealt'],
+        'frag': value['personal']['kills'],
+        'spot': value['personal']['spotted'],
+        'def': value['personal']['droppedCapturePoints'],
+        'xp': value['personal']['xp'],
+        'originalXP': value['personal']['originalXP'],
+        'credits': value['personal']['credits']
+    })
+    stat.save()
+    LOG_NOTE(value)
 
 def createMessage(text):
     msg = {
@@ -73,11 +77,9 @@ class SessionStatistic(object):
         self.cache = {}
         self.config = {}
         self.expectedValues = {}
-        self.startValues = {}
-        self.lastValues = {}
         self.values = {}
         self.colors = {}
-        self.vehicles = []
+        self.battles = []
         self.playerName = ''
         self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
             if datetime.datetime.now().hour >= 4 \
@@ -110,19 +112,16 @@ class SessionStatistic(object):
                 self.cache = json.load(jsonCache)
                 if self.cache.get('date', '') == self.startDate:
                     if self.cache.get('players', {}).has_key(self.playerName):
-                        self.startValues = self.cache['players'][self.playerName]['stats']
-                        self.vehicles = self.cache['players'][self.playerName]['vehicles']
+                        self.battles = self.cache['players'][self.playerName]['battles']
                     invalidCache = False
         if invalidCache:
             self.cache = {}
-        if len(self.startValues) == 0:
-            getDossier(self.startValues.update, self.save)
         self.thread = Thread(target=self.mainLoop)
         self.thread.setDaemon(True)
         self.thread.start()
 
     def save(self):
-        if (len(self.startValues) == 0):
+        if (len(self.battles) == 0):
             return
         statCache = open(self.statCacheFilePath, 'w')
         self.cache['date'] = self.startDate
@@ -130,8 +129,7 @@ class SessionStatistic(object):
             self.cache['players'] = {}
         if not self.cache['players'].has_key(self.playerName):
             self.cache['players'][self.playerName] = {}
-        self.cache['players'][self.playerName]['stats'] = self.startValues
-        self.cache['players'][self.playerName]['vehicles'] = self.vehicles
+        self.cache['players'][self.playerName]['battles'] = self.battles
         statCache.write(json.dumps(self.cache))
         statCache.close()
 
@@ -146,9 +144,6 @@ class SessionStatistic(object):
                 continue
             BigWorld.player().battleResultsCache.get(arenaUniqueID, battleResultsCallback)
             arenaUniqueID = -1
-
-    def updateDossier(self):
-        getDossier(self.lastValues.update)
 
     def refreshColorMacros(self):
         if self.values['battlesCount'] == 0:
@@ -206,46 +201,48 @@ class SessionStatistic(object):
         self.expectedValues[newIdNum] = tierExpected.copy()
 
     def recalc(self):
-        for key in self.startValues.keys():
-            self.values[key] = self.lastValues[key] - self.startValues[key]
-        self.values['battlesCount'] = max(self.values['battlesCount'], 0)
-        if self.values['battlesCount'] > 0:
-            self.values['avgWinRate'] = float(self.values['winsCount'])/self.values['battlesCount']*100
-            self.values['avgDmg'] = float(self.values['damageDealt'])/self.values['battlesCount']
-            self.values['avgFrag'] = float(self.values['fragsCount'])/self.values['battlesCount']
-            self.values['avgSpot'] = float(self.values['spottedCount'])/self.values['battlesCount']
-            self.values['avgDef'] = float(self.values['dCapPoints'])/self.values['battlesCount']
-            self.values['avgXP'] = int(self.values['totalXP']/self.values['battlesCount'])
-            self.values['avgCredits'] = int(self.values['credits']/self.values['battlesCount'])
-        else:
-            for key in ['avgWinRate', 'avgDmg', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits']:
-                self.values[key] = 0
-        while len(self.vehicles) > self.values['battlesCount']:
-            self.vehicles.pop(0)
-        vehiclesKeys = ['avgTier', 'expDmg', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
-        totalExp = {}
-        for key in vehiclesKeys:
-            totalExp['total_' + key] = 0
-        for vehicle in self.vehicles:
-            idNum = vehicle['idNum']
+        self.values['battlesCount'] = len(self.battles)
+        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalTier', 'totalXP', 'totalOriginXP', 'credits']
+        for key in valuesKeys:
+            self.values[key] = 0
+        expKeys = ['expDmg', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
+        expValues = {}
+        for key in expKeys:
+            expValues['total_' + key] = 0
+        for battle in self.battles:
+            self.values['winsCount'] += battle['win']
+            self.values['totalDmg'] += battle['damage']
+            self.values['totalFrag'] += battle['frag']
+            self.values['totalSpot'] += battle['spot']
+            self.values['totalDef'] += battle['def']
+            self.values['totalXP'] = battle['xp']
+            self.values['totalOriginXP'] = battle['originalXP']
+            self.values['credits'] = battle['credits']
+            self.values['totalTier'] += float(battle['tier'])
+            idNum = battle['idNum']
             if not self.expectedValues.has_key(idNum):
                 self.calcExpected(idNum)
-            totalExp['total_avgTier'] += float(vehicle['tier'])
-            totalExp['total_expDmg'] += float(self.expectedValues[idNum]['expDamage'])
-            totalExp['total_expFrag'] += float(self.expectedValues[idNum]['expFrag'])
-            totalExp['total_expSpot'] += float(self.expectedValues[idNum]['expSpot'])
-            totalExp['total_expDef'] += float(self.expectedValues[idNum]['expDef'])
-            totalExp['total_expWinRate'] += float(self.expectedValues[idNum]['expWinRate'])
-        if len(self.vehicles) > 0:
-            for key in vehiclesKeys:
-                self.values[key] = totalExp['total_' + key]/len(self.vehicles)
+            expValues['total_expDmg'] += float(self.expectedValues[idNum]['expDamage'])
+            expValues['total_expFrag'] += float(self.expectedValues[idNum]['expFrag'])
+            expValues['total_expSpot'] += float(self.expectedValues[idNum]['expSpot'])
+            expValues['total_expDef'] += float(self.expectedValues[idNum]['expDef'])
+            expValues['total_expWinRate'] += float(self.expectedValues[idNum]['expWinRate'])
+        if self.values['battlesCount'] > 0:
+            self.values['avgWinRate'] = float(self.values['winsCount'])/self.values['battlesCount']*100
+            self.values['avgDmg'] = float(self.values['totalDmg'])/self.values['battlesCount']
+            self.values['avgFrag'] = float(self.values['totalFrag'])/self.values['battlesCount']
+            self.values['avgSpot'] = float(self.values['totalSpot'])/self.values['battlesCount']
+            self.values['avgDef'] = float(self.values['totalDef'])/self.values['battlesCount']
+            self.values['avgXP'] = int(self.values['totalOriginXP']/self.values['battlesCount'])
+            self.values['avgCredits'] = int(self.values['credits']/self.values['battlesCount'])
+            self.values['avgTier'] = float(self.values['totalTier'])/self.values['battlesCount']
+            for key in expKeys:
+                self.values[key] = expValues['total_' + key]/self.values['battlesCount']
         else:
-            self.values['avgTier'] = 0
-            self.values['expDmg'] = max(1, self.values['avgDmg'])
-            self.values['expFrag'] = max(1, self.values['avgFrag'])
-            self.values['expSpot'] = max(1, self.values['avgSpot'])
-            self.values['expDef'] = max(1, self.values['avgDef'])
-            self.values['expWinRate'] = max(1, self.values['avgWinRate'])
+            for key in ['avgWinRate', 'avgDmg', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', ]:
+                self.values[key] = 0
+            for key in expKeys:
+                self.values[key] = 1
         self.values['rDAMAGE'] = self.values['avgDmg']/self.values['expDmg']
         self.values['rSPOT'] = self.values['avgSpot']/self.values['expSpot']
         self.values['rFRAG'] = self.values['avgFrag']/self.values['expFrag']
@@ -281,23 +278,6 @@ class SessionStatistic(object):
 
 old_onBecomePlayer = Account.onBecomePlayer
 
-def battleResultsCallback(responseCode, value = None, revision = 0):
-    vehicleCompDesc = value['personal']['typeCompDescr']
-    vt = vehiclesWG.getVehicleType(vehicleCompDesc)
-    win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
-    stat.vehicles.append({
-        'idNum': vehicleCompDesc,
-        'name': vt.name,
-        'tier': vt.level,
-        'win': win,
-        'damage': value['personal']['damageDealt'],
-        'frag': value['personal']['kills'],
-        'spot': value['personal']['spotted'],
-        'def': value['personal']['droppedCapturePoints']
-        })
-    stat.save()
-    LOG_NOTE(value)
-
 def new_onBecomePlayer(self):
     old_onBecomePlayer(self)
     stat.load()
@@ -309,7 +289,6 @@ old_nlv_populate = NotificationListView._populate
 
 def new_nlv_populate(self, target = 'SummaryMessage'):
     old_nlv_populate(self)
-    stat.updateDossier()
     msg = createMessage(stat.printMessage())
     self.as_appendMessageS(msg)
 
