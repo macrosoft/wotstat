@@ -133,12 +133,14 @@ class SessionStatistic(object):
         })
         self.save()
         LOG_NOTE(value)
+        stat.battleResultsReady.set()
 
     def mainLoop(self):
         while True:
             arenaUniqueID = self.queue.get()
             LOG_NOTE(arenaUniqueID)
             stat.battleResultsReady.wait()
+            stat.battleResultsReady.clear()
             LOG_NOTE('mainLoop')
             BigWorld.player().battleResultsCache.get(arenaUniqueID, self.battleResultsCallback)
 
@@ -292,7 +294,6 @@ def new_onBecomeNonPlayer(self):
     old_onBecomeNonPlayer(self)
 
 Account.onBecomeNonPlayer = new_onBecomeNonPlayer
-
 
 old_nlv_populate = NotificationListView._populate
 
