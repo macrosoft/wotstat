@@ -6,38 +6,15 @@ import json
 import os
 from Account import Account
 from account_helpers import BattleResultsCache
-from adisp import process
 from items import vehicles as vehiclesWG
 from gui.shared.utils.requesters import StatsRequester
 from notification.NotificationListView import NotificationListView
 from messenger.formatters.service_channel import BattleResultsFormatter
 from time import sleep
-from threading import Thread
+import threading
 from Queue import Queue
 from xml.dom import minidom
 from debug_utils import *
-
-def battleResultsCallback(responseCode, value = None, revision = 0):
-    if responseCode < 0:
-        return
-    vehicleCompDesc = value['personal']['typeCompDescr']
-    vt = vehiclesWG.getVehicleType(vehicleCompDesc)
-    win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
-    stat.battles.append({
-        'idNum': vehicleCompDesc,
-        'name': vt.name,
-        'tier': vt.level,
-        'win': win,
-        'damage': value['personal']['damageDealt'],
-        'frag': value['personal']['kills'],
-        'spot': value['personal']['spotted'],
-        'def': value['personal']['droppedCapturePoints'],
-        'xp': value['personal']['xp'],
-        'originalXP': value['personal']['originalXP'],
-        'credits': value['personal']['credits']
-    })
-    stat.save()
-    LOG_NOTE(value)
 
 def createMessage(text):
     msg = {
@@ -81,6 +58,8 @@ class SessionStatistic(object):
         self.colors = {}
         self.battles = []
         self.playerName = ''
+        self.battleResultsReady = threading.Event()
+        self.battleResultsReady.clear()
         self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
             if datetime.datetime.now().hour >= 4 \
             else (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
@@ -116,7 +95,7 @@ class SessionStatistic(object):
                     invalidCache = False
         if invalidCache:
             self.cache = {}
-        self.thread = Thread(target=self.mainLoop)
+        self.thread = threading.Thread(target=self.mainLoop)
         self.thread.setDaemon(True)
         self.thread.start()
 
@@ -133,17 +112,35 @@ class SessionStatistic(object):
         statCache.write(json.dumps(self.cache))
         statCache.close()
 
+    def battleResultsCallback(self, responseCode, value = None, revision = 0):
+        if responseCode < 0:
+            return
+        vehicleCompDesc = value['personal']['typeCompDescr']
+        vt = vehiclesWG.getVehicleType(vehicleCompDesc)
+        win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
+        self.battles.append({
+            'idNum': vehicleCompDesc,
+            'name': vt.name,
+            'tier': vt.level,
+            'win': win,
+            'damage': value['personal']['damageDealt'],
+            'frag': value['personal']['kills'],
+            'spot': value['personal']['spotted'],
+            'def': value['personal']['droppedCapturePoints'],
+            'xp': value['personal']['xp'],
+            'originalXP': value['personal']['originalXP'],
+            'credits': value['personal']['credits']
+        })
+        self.save()
+        LOG_NOTE(value)
+
     def mainLoop(self):
-        arenaUniqueID = -1
         while True:
-            if arenaUniqueID < 0:
-                arenaUniqueID = self.queue.get()
-            if not hasattr(BigWorld.player(), 'battleResultsCache'):
-                sleep(1)
-                LOG_NOTE('Zzz...')
-                continue
-            BigWorld.player().battleResultsCache.get(arenaUniqueID, battleResultsCallback)
-            arenaUniqueID = -1
+            arenaUniqueID = self.queue.get()
+            LOG_NOTE(arenaUniqueID)
+            stat.battleResultsReady.wait()
+            LOG_NOTE('mainLoop')
+            BigWorld.player().battleResultsCache.get(arenaUniqueID, self.battleResultsCallback)
 
     def refreshColorMacros(self):
         if self.values['battlesCount'] == 0:
@@ -280,9 +277,21 @@ old_onBecomePlayer = Account.onBecomePlayer
 
 def new_onBecomePlayer(self):
     old_onBecomePlayer(self)
+    LOG_NOTE("onBecomePlayer")
+    stat.battleResultsReady.set()
     stat.load()
 
 Account.onBecomePlayer = new_onBecomePlayer
+
+
+old_onBecomeNonPlayer = Account.onBecomeNonPlayer
+
+def new_onBecomeNonPlayer(self):
+    LOG_NOTE("onBecomeNonPlayer")
+    stat.battleResultsReady.clear()
+    old_onBecomeNonPlayer(self)
+
+Account.onBecomeNonPlayer = new_onBecomeNonPlayer
 
 
 old_nlv_populate = NotificationListView._populate
