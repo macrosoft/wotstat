@@ -83,8 +83,10 @@ class SessionStatistic(object):
         with open(expectedValuesPath) as origExpectedValuesJson:
             origExpectedValues = json.load(origExpectedValuesJson)
             for tankValues in origExpectedValues['data']:
-                idNum = tankValues.pop('IDNum')
-                self.expectedValues[int(idNum)] = tankValues
+                idNum = int(tankValues.pop('IDNum'))
+                self.expectedValues[idNum] = {}
+                for key in ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']:
+                    self.expectedValues[idNum][key] = float(tankValues[key])
         invalidCache = True
         if os.path.isfile(self.statCacheFilePath):
             with open(self.statCacheFilePath) as jsonCache:
@@ -187,9 +189,9 @@ class SessionStatistic(object):
                 if vType == newType:
                     typeExpectedCount += 1
                 for key in self.expectedValues[idNum]:
-                    tierExpected[key] = tierExpected.get(key, 0) + float(self.expectedValues[idNum].get(key, 0))
+                    tierExpected[key] = tierExpected.get(key, 0) + self.expectedValues[idNum].get(key, 0.0)
                     if vType == newType:
-                        typeExpected[key] = typeExpected.get(key, 0) + float(self.expectedValues[idNum].get(key, 0))
+                        typeExpected[key] = typeExpected.get(key, 0) + self.expectedValues[idNum].get(key, 0.0)
         if typeExpectedCount > 0:
             for key in typeExpected:
                 typeExpected[key] /= typeExpectedCount
@@ -203,11 +205,11 @@ class SessionStatistic(object):
         self.values['battlesCount'] = len(self.battles)
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalTier', 'totalXP', 'totalOriginXP', 'credits']
         for key in valuesKeys:
-            self.values[key] = 0
-        expKeys = ['expDmg', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
+            self.values[key] = 0.0
+        expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
         expValues = {}
         for key in expKeys:
-            expValues['total_' + key] = 0
+            expValues['total_' + key] = 0.0
         for battle in self.battles:
             self.values['winsCount'] += battle['win']
             self.values['totalDmg'] += battle['damage']
@@ -217,18 +219,18 @@ class SessionStatistic(object):
             self.values['totalXP'] = battle['xp']
             self.values['totalOriginXP'] = battle['originalXP']
             self.values['credits'] = battle['credits']
-            self.values['totalTier'] += float(battle['tier'])
+            self.values['totalTier'] += battle['tier']
             idNum = battle['idNum']
             if not self.expectedValues.has_key(idNum):
                 self.calcExpected(idNum)
-            expValues['total_expDmg'] += float(self.expectedValues[idNum]['expDamage'])
-            expValues['total_expFrag'] += float(self.expectedValues[idNum]['expFrag'])
-            expValues['total_expSpot'] += float(self.expectedValues[idNum]['expSpot'])
-            expValues['total_expDef'] += float(self.expectedValues[idNum]['expDef'])
-            expValues['total_expWinRate'] += float(self.expectedValues[idNum]['expWinRate'])
+            expValues['total_expDamage'] += self.expectedValues[idNum]['expDamage']
+            expValues['total_expFrag'] += self.expectedValues[idNum]['expFrag']
+            expValues['total_expSpot'] += self.expectedValues[idNum]['expSpot']
+            expValues['total_expDef'] += self.expectedValues[idNum]['expDef']
+            expValues['total_expWinRate'] += self.expectedValues[idNum]['expWinRate']
         if self.values['battlesCount'] > 0:
             self.values['avgWinRate'] = float(self.values['winsCount'])/self.values['battlesCount']*100
-            self.values['avgDmg'] = float(self.values['totalDmg'])/self.values['battlesCount']
+            self.values['avgDamage'] = float(self.values['totalDmg'])/self.values['battlesCount']
             self.values['avgFrag'] = float(self.values['totalFrag'])/self.values['battlesCount']
             self.values['avgSpot'] = float(self.values['totalSpot'])/self.values['battlesCount']
             self.values['avgDef'] = float(self.values['totalDef'])/self.values['battlesCount']
@@ -238,11 +240,11 @@ class SessionStatistic(object):
             for key in expKeys:
                 self.values[key] = expValues['total_' + key]/self.values['battlesCount']
         else:
-            for key in ['avgWinRate', 'avgDmg', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', ]:
+            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', ]:
                 self.values[key] = 0
             for key in expKeys:
                 self.values[key] = 1
-        self.values['rDAMAGE'] = self.values['avgDmg']/self.values['expDmg']
+        self.values['rDAMAGE'] = self.values['avgDamage']/self.values['expDamage']
         self.values['rSPOT'] = self.values['avgSpot']/self.values['expSpot']
         self.values['rFRAG'] = self.values['avgFrag']/self.values['expFrag']
         self.values['rDEF'] = self.values['avgDef']/self.values['expDef']
