@@ -58,8 +58,9 @@ class SessionStatistic(object):
         self.colors = {}
         self.battles = []
         self.playerName = ''
-        self.battleResultsReady = threading.Event()
-        self.battleResultsReady.clear()
+        self.battleResultsAvailable = threading.Event()
+        self.battleResultsAvailable.clear()
+        self.battleResultsBusy = threading.Lock()
         self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
             if datetime.datetime.now().hour >= 4 \
             else (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
@@ -116,6 +117,7 @@ class SessionStatistic(object):
 
     def battleResultsCallback(self, responseCode, value = None, revision = 0):
         if responseCode < 0:
+            self.battleResultsBusy.release()
             return
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
@@ -135,15 +137,13 @@ class SessionStatistic(object):
         })
         self.save()
         LOG_NOTE(value)
-        stat.battleResultsReady.set()
+        self.battleResultsBusy.release()
 
     def mainLoop(self):
         while True:
             arenaUniqueID = self.queue.get()
-            LOG_NOTE(arenaUniqueID)
-            stat.battleResultsReady.wait()
-            stat.battleResultsReady.clear()
-            LOG_NOTE('mainLoop')
+            stat.battleResultsAvailable.wait()
+            self.battleResultsBusy.acquire()
             BigWorld.player().battleResultsCache.get(arenaUniqueID, self.battleResultsCallback)
 
     def refreshColorMacros(self):
@@ -281,8 +281,7 @@ old_onBecomePlayer = Account.onBecomePlayer
 
 def new_onBecomePlayer(self):
     old_onBecomePlayer(self)
-    LOG_NOTE("onBecomePlayer")
-    stat.battleResultsReady.set()
+    stat.battleResultsAvailable.set()
     stat.load()
 
 Account.onBecomePlayer = new_onBecomePlayer
@@ -291,8 +290,7 @@ Account.onBecomePlayer = new_onBecomePlayer
 old_onBecomeNonPlayer = Account.onBecomeNonPlayer
 
 def new_onBecomeNonPlayer(self):
-    LOG_NOTE("onBecomeNonPlayer")
-    stat.battleResultsReady.clear()
+    stat.battleResultsAvailable.clear()
     old_onBecomeNonPlayer(self)
 
 Account.onBecomeNonPlayer = new_onBecomeNonPlayer
