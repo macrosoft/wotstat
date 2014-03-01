@@ -205,7 +205,7 @@ class SessionStatistic(object):
         self.values['battlesCount'] = len(self.battles)
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalTier', 'totalXP', 'totalOriginXP', 'credits']
         for key in valuesKeys:
-            self.values[key] = 0.0
+            self.values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
         expValues = {}
         for key in expKeys:
@@ -216,9 +216,9 @@ class SessionStatistic(object):
             self.values['totalFrag'] += battle['frag']
             self.values['totalSpot'] += battle['spot']
             self.values['totalDef'] += battle['def']
-            self.values['totalXP'] = battle['xp']
-            self.values['totalOriginXP'] = battle['originalXP']
-            self.values['credits'] = battle['credits']
+            self.values['totalXP'] += battle['xp']
+            self.values['totalOriginXP'] += battle['originalXP']
+            self.values['credits'] += battle['credits']
             self.values['totalTier'] += battle['tier']
             idNum = battle['idNum']
             if not self.expectedValues.has_key(idNum):
