@@ -122,6 +122,11 @@ class SessionStatistic(object):
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
         win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
+        battleTier = 1
+        for key in value['vehicles'].keys():
+            pTypeCompDescr = value['vehicles'][key]['typeCompDescr']
+            pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
+            battleTier = max(battleTier, pvt.level)
         self.battles.append({
             'idNum': vehicleCompDesc,
             'name': vt.name,
@@ -133,7 +138,8 @@ class SessionStatistic(object):
             'def': value['personal']['droppedCapturePoints'],
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
-            'credits': value['personal']['credits']
+            'credits': value['personal']['credits'],
+            'battleTier': battleTier
         })
         self.save()
         LOG_NOTE(value)
@@ -203,7 +209,7 @@ class SessionStatistic(object):
 
     def recalc(self):
         self.values['battlesCount'] = len(self.battles)
-        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalTier', 'totalXP', 'totalOriginXP', 'credits']
+        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalTier', 'totalBattleTier', 'totalXP', 'totalOriginXP', 'credits']
         for key in valuesKeys:
             self.values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -220,6 +226,7 @@ class SessionStatistic(object):
             self.values['totalOriginXP'] += battle['originalXP']
             self.values['credits'] += battle['credits']
             self.values['totalTier'] += battle['tier']
+            self.values['totalBattleTier'] += battle['battleTier']
             idNum = battle['idNum']
             if not self.expectedValues.has_key(idNum):
                 self.calcExpected(idNum)
@@ -236,7 +243,8 @@ class SessionStatistic(object):
             self.values['avgDef'] = float(self.values['totalDef'])/self.values['battlesCount']
             self.values['avgXP'] = int(self.values['totalOriginXP']/self.values['battlesCount'])
             self.values['avgCredits'] = int(self.values['credits']/self.values['battlesCount'])
-            self.values['avgTier'] = float(self.values['totalTier'])/self.values['battlesCount']
+            self.values['avgTier'] = round(float(self.values['totalTier'])/self.values['battlesCount'], 1)
+            self.values['avgBattleTier'] = round(float(self.values['totalBattleTier'])/self.values['battlesCount'], 1)
             for key in expKeys:
                 self.values[key] = expValues['total_' + key]/self.values['battlesCount']
         else:
