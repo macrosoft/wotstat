@@ -240,7 +240,7 @@ class SessionStatistic(object):
         self.values['rSPOTc'] = max(0, min(self.values['rDAMAGEc'] + 0.1, (self.values['rSPOT'] - 0.38)/(1 - 0.38)))
         self.values['rDEFc'] = max(0, min(self.values['rDAMAGEc'] + 0.1, (self.values['rDEF'] - 0.10)/(1 - 0.10)))
         self.values['WN8'] = 980*self.values['rDAMAGEc'] + 210*self.values['rDAMAGEc']*self.values['rFRAGc'] + \
-            155*self.values['rFRAGc']*self.values['rSPOTc'] + 75*self.values['rSPOTc']*self.values['rFRAGc'] + \
+            155*self.values['rFRAGc']*self.values['rSPOTc'] + 75*self.values['rDEFc']*self.values['rFRAGc'] + \
             145*min(1.8, self.values['rWINc'])
         self.values['XWN8'] = 100 if self.values['WN8'] > 3250 \
             else int(max(min(self.values['WN8']*(self.values['WN8']*\
