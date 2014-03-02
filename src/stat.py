@@ -127,6 +127,9 @@ class SessionStatistic(object):
             pTypeCompDescr = value['vehicles'][key]['typeCompDescr']
             pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
             battleTier = max(battleTier, pvt.level)
+            proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
+                       value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0] -\
+                       value['personal']['creditsContributionOut']
         self.battles.append({
             'idNum': vehicleCompDesc,
             'name': vt.name,
@@ -138,11 +141,10 @@ class SessionStatistic(object):
             'def': value['personal']['droppedCapturePoints'],
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
-            'credits': value['personal']['credits'],
+            'credits': proceeds,
             'battleTier': battleTier
         })
         self.save()
-        LOG_NOTE(value)
         self.battleResultsBusy.release()
 
     def mainLoop(self):
@@ -248,10 +250,11 @@ class SessionStatistic(object):
             for key in expKeys:
                 self.values[key] = expValues['total_' + key]/self.values['battlesCount']
         else:
-            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', ]:
+            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier']:
                 self.values[key] = 0
             for key in expKeys:
                 self.values[key] = 1
+        self.values['avgBattleTierDiff'] = self.values['avgBattleTier'] - self.values['avgTier']
         self.values['rDAMAGE'] = self.values['avgDamage']/self.values['expDamage']
         self.values['rSPOT'] = self.values['avgSpot']/self.values['expSpot']
         self.values['rFRAG'] = self.values['avgFrag']/self.values['expFrag']
