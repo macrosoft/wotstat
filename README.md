@@ -1,4 +1,4 @@
-wotstat
+Wotstat
 =======
 
 Session statistic mod for World of Tanks

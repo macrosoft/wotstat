@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import BigWorld
+import ArenaType
 import datetime
 import json
 import os
@@ -8,10 +9,10 @@ from Account import Account
 from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
 from gui.shared.utils.requesters import StatsRequester
+from helpers import i18n
 from notification.NotificationListView import NotificationListView
 from messenger import MessengerEntry
 from messenger.formatters.service_channel import BattleResultsFormatter
-from time import sleep
 import threading
 from Queue import Queue
 from xml.dom import minidom
@@ -93,7 +94,8 @@ class SessionStatistic(object):
         if os.path.isfile(self.statCacheFilePath):
             with open(self.statCacheFilePath) as jsonCache:
                 self.cache = json.load(jsonCache)
-                if self.cache.get('date', '') == self.startDate:
+                if self.cache.get('date', '') == self.startDate or \
+                    not self.config.get('dailyAutoReset', True):
                     if self.cache.get('players', {}).has_key(self.playerName):
                         self.battles = self.cache['players'][self.playerName]['battles']
                     invalidCache = False
@@ -322,9 +324,25 @@ def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
     arenaUniqueID = message.data.get('arenaUniqueID', 0)
     stat.queue.put(arenaUniqueID)
-    player = BigWorld.player()
-    if hasattr(player, 'arena'):
-        MessengerEntry.g_instance.gui.addClientMessage('battle ended')
+    if hasattr(BigWorld.player(), 'arena'):
+        if BigWorld.player().arena.arenaUniqueID != arenaUniqueID:
+            isWinner = message.data.get('isWinner', 0)
+            battleEndedMessage = ''
+            if isWinner < 0:
+                battleEndedMessage = stat.config.get('battleEndedMessageDefeat', '')
+            elif isWinner > 0:
+                battleEndedMessage = stat.config.get('battleEndedMessageWin', '')
+            else:
+                battleEndedMessage = stat.config.get('battleEndedMessageDraw', '')
+            battleEndedMessage = battleEndedMessage.encode('utf-8')
+            vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
+            vt = vehiclesWG.getVehicleType(vehicleCompDesc)
+            battleEndedMessage = battleEndedMessage.replace('{{vehicle}}', vt.shortUserString)
+            arenaTypeID = message.data.get('arenaTypeID', 0)
+            arenaType = ArenaType.g_cache[arenaTypeID]
+            arenaName = i18n.makeString(arenaType.name)
+            battleEndedMessage = battleEndedMessage.replace('{{map}}', arenaName)
+            MessengerEntry.g_instance.gui.addClientMessage(battleEndedMessage)
     return result
 
 BattleResultsFormatter.format = new_brf_format
