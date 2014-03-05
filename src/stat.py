@@ -9,6 +9,7 @@ from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
 from gui.shared.utils.requesters import StatsRequester
 from notification.NotificationListView import NotificationListView
+from messenger import MessengerEntry
 from messenger.formatters.service_channel import BattleResultsFormatter
 from time import sleep
 import threading
@@ -321,6 +322,9 @@ def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
     arenaUniqueID = message.data.get('arenaUniqueID', 0)
     stat.queue.put(arenaUniqueID)
+    player = BigWorld.player()
+    if hasattr(player, 'arena'):
+        MessengerEntry.g_instance.gui.addClientMessage('battle ended')
     return result
 
 BattleResultsFormatter.format = new_brf_format
