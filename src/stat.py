@@ -18,25 +18,6 @@ from Queue import Queue
 from xml.dom import minidom
 from debug_utils import *
 
-def createMessage(text):
-    msg = {
-        'type': 'black',
-        'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
-        'message': text,
-        'showMore': {
-            'command': 'stat',
-            'enabled': False,
-            'param': 'None'
-        }
-    }
-    message = {
-        'message': msg,
-        'priority': True,
-        'notify': False,
-        'auxData': ['GameGreeting']
-    }
-    return message
-
 def hexToRgb(hex):
     return [int(hex[i:i+2], 16) for i in range(1,6,2)] 
 
@@ -106,8 +87,6 @@ class SessionStatistic(object):
         self.thread.start()
 
     def save(self):
-        if (len(self.battles) == 0):
-            return
         statCache = open(self.statCacheFilePath, 'w')
         self.cache['date'] = self.startDate
         if not self.cache.has_key('players'):
@@ -117,6 +96,25 @@ class SessionStatistic(object):
         self.cache['players'][self.playerName]['battles'] = self.battles
         statCache.write(json.dumps(self.cache))
         statCache.close()
+
+    def createMessage(self):
+        msg = {
+            'type': 'black',
+            'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
+            'message': self.printMessage(),
+            'showMore': {
+                'command': 'wotstat',
+                'enabled': self.config.get('showResetButton', False),
+                'param': 'reset'
+            }
+        }
+        message = {
+            'message': msg,
+            'priority': True,
+            'notify': False,
+            'auxData': ['GameGreeting']
+        }
+        return message
 
     def battleResultsCallback(self, responseCode, value = None, revision = 0):
         if responseCode < 0:
@@ -313,10 +311,27 @@ old_nlv_populate = NotificationListView._populate
 
 def new_nlv_populate(self, target = 'SummaryMessage'):
     old_nlv_populate(self)
-    msg = createMessage(stat.printMessage())
+    msg = stat.createMessage()
     self.as_appendMessageS(msg)
 
 NotificationListView._populate = new_nlv_populate
+
+old_nlv_onMessageShowMore = NotificationListView.onMessageShowMore
+
+def new_nlv_onMessageShowMore(self, data):
+    if hasattr(data, 'command'):
+        command = data.command
+        if command == 'wotstat':
+            if data.param == 'reset':
+                stat.battles = []
+                stat.save()
+                new_nlv_populate(self)
+            else:
+                new_nlv_populate(self, target = data.param)
+        else:
+            old_nlv_onMessageShowMore(self, data)
+
+NotificationListView.onMessageShowMore = new_nlv_onMessageShowMore
 
 old_brf_format = BattleResultsFormatter.format
 
