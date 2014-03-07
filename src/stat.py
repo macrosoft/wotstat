@@ -41,6 +41,7 @@ class SessionStatistic(object):
         self.colors = {}
         self.battles = []
         self.playerName = ''
+        self.message = ''
         self.battleResultsAvailable = threading.Event()
         self.battleResultsAvailable.clear()
         self.battleResultsBusy = threading.Lock()
@@ -82,6 +83,7 @@ class SessionStatistic(object):
                     invalidCache = False
         if invalidCache:
             self.cache = {}
+        self.updateMessage()
         self.thread = threading.Thread(target=self.mainLoop)
         self.thread.setDaemon(True)
         self.thread.start()
@@ -101,7 +103,7 @@ class SessionStatistic(object):
         msg = {
             'type': 'black',
             'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
-            'message': self.printMessage(),
+            'message': self.message,
             'showMore': {
                 'command': 'wotstat',
                 'enabled': self.config.get('showResetButton', False),
@@ -146,6 +148,7 @@ class SessionStatistic(object):
             'battleTier': battleTier
         })
         self.save()
+        self.updateMessage()
         self.battleResultsBusy.release()
 
     def mainLoop(self):
@@ -210,7 +213,7 @@ class SessionStatistic(object):
             tierExpected[key] /= tierExpectedCount
         self.expectedValues[newIdNum] = tierExpected.copy()
 
-    def recalc(self):
+    def updateMessage(self):
         self.values['battlesCount'] = len(self.battles)
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalTier', 'totalBattleTier', 'totalXP', 'totalOriginXP', 'credits']
         for key in valuesKeys:
@@ -276,9 +279,6 @@ class SessionStatistic(object):
             0.000000000006736) + 0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
         self.values['WN8'] = int(self.values['WN8'])
         self.refreshColorMacros()
-
-    def printMessage(self):
-        self.recalc()
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
             if type(self.values[key]) is float:
@@ -286,8 +286,7 @@ class SessionStatistic(object):
             else:
                 msg = msg.replace('{{%s}}' % key, str(self.values[key]))
             msg = msg.replace('{{c:%s}}' % key, self.colors[key])
-        return msg
-
+        self.message = msg
 
 old_onBecomePlayer = Account.onBecomePlayer
 
@@ -325,6 +324,7 @@ def new_nlv_onMessageShowMore(self, data):
             if data.param == 'reset':
                 stat.battles = []
                 stat.save()
+                stat.updateMessage()
                 new_nlv_populate(self)
             else:
                 new_nlv_populate(self, target = data.param)
