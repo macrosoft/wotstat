@@ -35,14 +35,15 @@ class SessionStatistic(object):
     def __init__(self):
         self.queue = Queue()
         self.loaded = False
+        self.battleStats = {}
         self.cache = {}
+        self.colors = {}
         self.config = {}
         self.expectedValues = {}
         self.values = {}
-        self.colors = {}
         self.battles = []
-        self.playerName = ''
         self.message = ''
+        self.playerName = ''
         self.battleResultsAvailable = threading.Event()
         self.battleResultsAvailable.clear()
         self.battleResultsBusy = threading.Lock()
@@ -152,6 +153,9 @@ class SessionStatistic(object):
         self.battles.append(battle)
         self.save()
         self.updateMessage()
+        battleStat = {}
+        self.calcWN8([battle], battleStat)
+        self.battleStats[arenaUniqueID] = battleStat
         self.battleResultsBusy.release()
 
     def mainLoop(self):
@@ -218,7 +222,7 @@ class SessionStatistic(object):
 
     def calcWN8(self, battles, retValues = None):
         values = {}
-        values['battlesCount'] = len(self.battles)
+        values['battlesCount'] = len(battles)
         totalTier = 0
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalXP', 'totalOriginXP', 'credits']
@@ -228,7 +232,7 @@ class SessionStatistic(object):
         expValues = {}
         for key in expKeys:
             expValues['total_' + key] = 0.0
-        for battle in self.battles:
+        for battle in battles:
             values['winsCount'] += battle['win']
             values['totalDmg'] += battle['damage']
             values['totalFrag'] += battle['frag']
@@ -298,6 +302,16 @@ class SessionStatistic(object):
             msg = msg.replace('{{c:%s}}' % key, self.colors[key])
         self.message = msg
 
+    def replaceBattleResultMessage(self, message, arenaUniqueID):
+        battleStatText = self.config.get('battleStatText', '')
+        for key in self.battleStats[arenaUniqueID].keys():
+            if type(self.battleStats[arenaUniqueID]) is float:
+                battleStatText = battleStatText.replace('{{%s}}' % key, str(round(self.battleStats[arenaUniqueID][key], 2)))
+            else:
+                battleStatText = battleStatText.replace('{{%s}}' % key, str(self.battleStats[arenaUniqueID][key]))
+            #battleStatText = battleStatText.replace('{{c:%s}}' % key, self.colors[key])
+        return re.sub('</font>$', '\n' + battleStatText + '</font>', message)
+
 old_onBecomePlayer = Account.onBecomePlayer
 
 def new_onBecomePlayer(self):
@@ -326,10 +340,9 @@ def new_nlv_populate(self, target = 'SummaryMessage'):
         formedList = []
         for message, isServerMsg, flag, notify, auxData, preventPopup in messagesList:
             if message.get('type','') == 'battleResult':
-                arenaUniqueID = message['value']
-                battleStatText = stat.config.get('battleStatText', '')
-                message['message'] = re.sub('</font>$', '\n' + battleStatText + '</font>', \
-                    message['message'])
+                arenaUniqueID = int(message['value'])
+                if stat.battleStats.has_key(arenaUniqueID):
+                    message['message'] = stat.replaceBattleResultMessage(message['message'], arenaUniqueID)
             notificationObject = self._formFullNotificationObject(message, flag, notify, auxData)
             formedList.append(notificationObject)
         self.as_setMessagesListS(formedList)
