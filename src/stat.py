@@ -127,6 +127,7 @@ class SessionStatistic(object):
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
         win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
         battleTier = 1
+        arenaUniqueID = value['arenaUniqueID']
         for key in value['vehicles'].keys():
             pTypeCompDescr = value['vehicles'][key]['typeCompDescr']
             pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
@@ -134,7 +135,7 @@ class SessionStatistic(object):
             proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
                        value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0] -\
                        value['personal']['creditsContributionOut']
-        self.battles.append({
+        battle = {
             'idNum': vehicleCompDesc,
             'name': vt.name,
             'tier': vt.level,
@@ -147,7 +148,8 @@ class SessionStatistic(object):
             'originalXP': value['personal']['originalXP'],
             'credits': proceeds,
             'battleTier': battleTier
-        })
+        }
+        self.battles.append(battle)
         self.save()
         self.updateMessage()
         self.battleResultsBusy.release()
@@ -214,26 +216,29 @@ class SessionStatistic(object):
             tierExpected[key] /= tierExpectedCount
         self.expectedValues[newIdNum] = tierExpected.copy()
 
-    def updateMessage(self):
-        self.values['battlesCount'] = len(self.battles)
-        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalTier', 'totalBattleTier', 'totalXP', 'totalOriginXP', 'credits']
+    def calcWN8(self, battles, retValues = None):
+        values = {}
+        values['battlesCount'] = len(self.battles)
+        totalTier = 0
+        totalBattleTier = 0
+        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalXP', 'totalOriginXP', 'credits']
         for key in valuesKeys:
-            self.values[key] = 0
+            values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
         expValues = {}
         for key in expKeys:
             expValues['total_' + key] = 0.0
         for battle in self.battles:
-            self.values['winsCount'] += battle['win']
-            self.values['totalDmg'] += battle['damage']
-            self.values['totalFrag'] += battle['frag']
-            self.values['totalSpot'] += battle['spot']
-            self.values['totalDef'] += battle['def']
-            self.values['totalXP'] += battle['xp']
-            self.values['totalOriginXP'] += battle['originalXP']
-            self.values['credits'] += battle['credits']
-            self.values['totalTier'] += battle['tier']
-            self.values['totalBattleTier'] += battle['battleTier']
+            values['winsCount'] += battle['win']
+            values['totalDmg'] += battle['damage']
+            values['totalFrag'] += battle['frag']
+            values['totalSpot'] += battle['spot']
+            values['totalDef'] += battle['def']
+            values['totalXP'] += battle['xp']
+            values['totalOriginXP'] += battle['originalXP']
+            values['credits'] += battle['credits']
+            totalTier += battle['tier']
+            totalBattleTier += battle['battleTier']
             idNum = battle['idNum']
             if not self.expectedValues.has_key(idNum):
                 self.calcExpected(idNum)
@@ -242,43 +247,47 @@ class SessionStatistic(object):
             expValues['total_expSpot'] += self.expectedValues[idNum]['expSpot']
             expValues['total_expDef'] += self.expectedValues[idNum]['expDef']
             expValues['total_expWinRate'] += self.expectedValues[idNum]['expWinRate']
-        if self.values['battlesCount'] > 0:
-            self.values['avgWinRate'] = float(self.values['winsCount'])/self.values['battlesCount']*100
-            self.values['avgDamage'] = float(self.values['totalDmg'])/self.values['battlesCount']
-            self.values['avgFrag'] = float(self.values['totalFrag'])/self.values['battlesCount']
-            self.values['avgSpot'] = float(self.values['totalSpot'])/self.values['battlesCount']
-            self.values['avgDef'] = float(self.values['totalDef'])/self.values['battlesCount']
-            self.values['avgXP'] = int(self.values['totalOriginXP']/self.values['battlesCount'])
-            self.values['avgCredits'] = int(self.values['credits']/self.values['battlesCount'])
-            self.values['avgTier'] = round(float(self.values['totalTier'])/self.values['battlesCount'], 1)
-            self.values['avgBattleTier'] = round(float(self.values['totalBattleTier'])/self.values['battlesCount'], 1)
+        if values['battlesCount'] > 0:
+            values['avgWinRate'] = float(values['winsCount'])/values['battlesCount']*100
+            values['avgDamage'] = float(values['totalDmg'])/values['battlesCount']
+            values['avgFrag'] = float(values['totalFrag'])/values['battlesCount']
+            values['avgSpot'] = float(values['totalSpot'])/values['battlesCount']
+            values['avgDef'] = float(values['totalDef'])/values['battlesCount']
+            values['avgXP'] = int(values['totalOriginXP']/values['battlesCount'])
+            values['avgCredits'] = int(values['credits']/values['battlesCount'])
+            values['avgTier'] = round(float(totalTier)/values['battlesCount'], 1)
+            values['avgBattleTier'] = round(float(totalBattleTier)/values['battlesCount'], 1)
             for key in expKeys:
-                self.values[key] = expValues['total_' + key]/self.values['battlesCount']
+                values[key] = expValues['total_' + key]/values['battlesCount']
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier']:
-                self.values[key] = 0
+                values[key] = 0
             for key in expKeys:
-                self.values[key] = 1
-        self.values['avgBattleTierDiff'] = self.values['avgBattleTier'] - self.values['avgTier']
-        self.values['rDAMAGE'] = self.values['avgDamage']/self.values['expDamage']
-        self.values['rSPOT'] = self.values['avgSpot']/self.values['expSpot']
-        self.values['rFRAG'] = self.values['avgFrag']/self.values['expFrag']
-        self.values['rDEF'] = self.values['avgDef']/self.values['expDef']
-        self.values['rWIN'] = self.values['avgWinRate']/self.values['expWinRate']
-        self.values['rWINc'] = max(0, (self.values['rWIN'] - 0.71)/(1 - 0.71))
-        self.values['rDAMAGEc'] = max(0, (self.values['rDAMAGE'] - 0.22)/(1 - 0.22))
-        self.values['rFRAGc'] = max(0, min(self.values['rDAMAGEc'] + 0.2, (self.values['rFRAG'] - 0.12)/(1 - 0.12)))
-        self.values['rSPOTc'] = max(0, min(self.values['rDAMAGEc'] + 0.1, (self.values['rSPOT'] - 0.38)/(1 - 0.38)))
-        self.values['rDEFc'] = max(0, min(self.values['rDAMAGEc'] + 0.1, (self.values['rDEF'] - 0.10)/(1 - 0.10)))
-        self.values['WN8'] = 980*self.values['rDAMAGEc'] + 210*self.values['rDAMAGEc']*self.values['rFRAGc'] + \
-            155*self.values['rFRAGc']*self.values['rSPOTc'] + 75*self.values['rDEFc']*self.values['rFRAGc'] + \
-            145*min(1.8, self.values['rWINc'])
-        self.values['XWN8'] = 100 if self.values['WN8'] > 3250 \
-            else int(max(min(self.values['WN8']*(self.values['WN8']*\
-            (self.values['WN8']*(self.values['WN8']*(self.values['WN8']*\
-            (0.0000000000000000000812*self.values['WN8'] + 0.0000000000000001616) - \
-            0.000000000006736) + 0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
-        self.values['WN8'] = int(self.values['WN8'])
+                values[key] = 1
+        values['avgBattleTierDiff'] = values['avgBattleTier'] - values['avgTier']
+        values['rDAMAGE'] = values['avgDamage']/values['expDamage']
+        values['rSPOT'] = values['avgSpot']/values['expSpot']
+        values['rFRAG'] = values['avgFrag']/values['expFrag']
+        values['rDEF'] = values['avgDef']/values['expDef']
+        values['rWIN'] = values['avgWinRate']/values['expWinRate']
+        values['rWINc'] = max(0, (values['rWIN'] - 0.71)/(1 - 0.71))
+        values['rDAMAGEc'] = max(0, (values['rDAMAGE'] - 0.22)/(1 - 0.22))
+        values['rFRAGc'] = max(0, min(values['rDAMAGEc'] + 0.2, (values['rFRAG'] - 0.12)/(1 - 0.12)))
+        values['rSPOTc'] = max(0, min(values['rDAMAGEc'] + 0.1, (values['rSPOT'] - 0.38)/(1 - 0.38)))
+        values['rDEFc'] = max(0, min(values['rDAMAGEc'] + 0.1, (values['rDEF'] - 0.10)/(1 - 0.10)))
+        values['WN8'] = 980*values['rDAMAGEc'] + 210*values['rDAMAGEc']*values['rFRAGc'] + \
+            155*values['rFRAGc']*values['rSPOTc'] + 75*values['rDEFc']*values['rFRAGc'] + \
+            145*min(1.8, values['rWINc'])
+        values['XWN8'] = 100 if values['WN8'] > 3250 \
+            else int(max(min(values['WN8']*(values['WN8']*(values['WN8']*(values['WN8']*(values['WN8']*\
+            (0.0000000000000000000812*values['WN8'] + 0.0000000000000001616) - 0.000000000006736) +\
+            0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
+        values['WN8'] = int(values['WN8'])
+        if retValues is not None:
+            retValues.update(values)
+
+    def updateMessage(self):
+        self.calcWN8(self.battles, self.values)
         self.refreshColorMacros()
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
@@ -318,7 +327,9 @@ def new_nlv_populate(self, target = 'SummaryMessage'):
         for message, isServerMsg, flag, notify, auxData, preventPopup in messagesList:
             if message.get('type','') == 'battleResult':
                 arenaUniqueID = message['value']
-                message['message'] = re.sub('</font>$', '\nWN8: ???? (??)</font>', message['message'])
+                battleStatText = stat.config.get('battleStatText', '')
+                message['message'] = re.sub('</font>$', '\n' + battleStatText + '</font>', \
+                    message['message'])
             notificationObject = self._formFullNotificationObject(message, flag, notify, auxData)
             formedList.append(notificationObject)
         self.as_setMessagesListS(formedList)
