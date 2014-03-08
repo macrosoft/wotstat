@@ -1,4 +1,5 @@
 {
+    "showStatForBattle": true,
     "showResetButton": false,
     "dailyAutoReset": true,
     "battleEndedMessageDefeat": "<font color='#FE0E00'>Бой {{map}} - {{vehicle}} завершился поражением.</font>",

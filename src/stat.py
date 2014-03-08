@@ -5,6 +5,7 @@ import ArenaType
 import datetime
 import json
 import os
+import re
 from Account import Account
 from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
@@ -310,8 +311,19 @@ old_nlv_populate = NotificationListView._populate
 
 def new_nlv_populate(self, target = 'SummaryMessage'):
     old_nlv_populate(self)
-    msg = stat.createMessage()
-    self.as_appendMessageS(msg)
+    if stat.config.get('showStatForBattle', True):
+        super(NotificationListView, self)._populate()
+        messagesList = self._model.getMessagesList()
+        formedList = []
+        for message, isServerMsg, flag, notify, auxData, preventPopup in messagesList:
+            if message.get('type','') == 'battleResult':
+                arenaUniqueID = message['value']
+                message['message'] = re.sub('</font>$', '\nWN8: ???? (??)</font>', message['message'])
+            notificationObject = self._formFullNotificationObject(message, flag, notify, auxData)
+            formedList.append(notificationObject)
+        self.as_setMessagesListS(formedList)
+        self.onLayoutSettingsChanged({})
+    self.as_appendMessageS(stat.createMessage())
 
 NotificationListView._populate = new_nlv_populate
 
