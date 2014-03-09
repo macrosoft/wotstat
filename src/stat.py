@@ -154,8 +154,11 @@ class SessionStatistic(object):
         self.save()
         self.updateMessage()
         battleStat = {}
-        self.calcWN8([battle], battleStat)
-        self.battleStats[arenaUniqueID] = battleStat
+        colors = {}
+        self.calcWN8([battle], battleStat, colors)
+        self.battleStats[arenaUniqueID] = {}
+        self.battleStats[arenaUniqueID]['values'] = battleStat
+        self.battleStats[arenaUniqueID]['colors'] = colors
         self.battleResultsBusy.release()
 
     def mainLoop(self):
@@ -165,30 +168,30 @@ class SessionStatistic(object):
             self.battleResultsBusy.acquire()
             BigWorld.player().battleResultsCache.get(arenaUniqueID, self.battleResultsCallback)
 
-    def refreshColorMacros(self):
-        if self.values['battlesCount'] == 0:
-            for key in self.values.keys():
-                self.colors[key] = '#FFFFFF'
+    def refreshColorMacros(self, values, colors):
+        if values['battlesCount'] == 0:
+            for key in values.keys():
+                colors[key] = '#FFFFFF'
             return
-        for key in self.values.keys():
+        for key in values.keys():
             if self.config['colors'].has_key(key):
                 clrs = self.config['colors'][key]
-                if self.values[key] <= clrs[0]['value']:
-                    self.colors[key] = clrs[0]['color']
-                elif self.values[key] >= clrs[-1]['value']:
-                    self.colors[key] = clrs[-1]['color']
+                if values[key] <= clrs[0]['value']:
+                    colors[key] = clrs[0]['color']
+                elif values[key] >= clrs[-1]['value']:
+                    colors[key] = clrs[-1]['color']
                 else:
                     sVal = clrs[0]['value']
                     eVal = clrs[1]['value']
                     i = 1
-                    while eVal < self.values[key]:
+                    while eVal < values[key]:
                         sVal = clrs[i]['value']
                         i += 1
                         eVal = clrs[i]['value']
-                    val = float(self.values[key] - sVal)/(eVal - sVal)
-                    self.colors[key] = gradColor(clrs[i - 1]['color'], clrs[i]['color'], val)
+                    val = float(values[key] - sVal)/(eVal - sVal)
+                    colors[key] = gradColor(clrs[i - 1]['color'], clrs[i]['color'], val)
             else:
-                self.colors[key] = '#FFFFFF'
+                colors[key] = '#FFFFFF'
     
     def calcExpected(self, newIdNum):
         v = vehiclesWG.getVehicleType(newIdNum)
@@ -220,8 +223,7 @@ class SessionStatistic(object):
             tierExpected[key] /= tierExpectedCount
         self.expectedValues[newIdNum] = tierExpected.copy()
 
-    def calcWN8(self, battles, retValues = None):
-        values = {}
+    def calcWN8(self, battles, values, colors):
         values['battlesCount'] = len(battles)
         totalTier = 0
         totalBattleTier = 0
@@ -287,12 +289,10 @@ class SessionStatistic(object):
             (0.0000000000000000000812*values['WN8'] + 0.0000000000000001616) - 0.000000000006736) +\
             0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
         values['WN8'] = int(values['WN8'])
-        if retValues is not None:
-            retValues.update(values)
+        self.refreshColorMacros(values, colors)
 
     def updateMessage(self):
-        self.calcWN8(self.battles, self.values)
-        self.refreshColorMacros()
+        self.calcWN8(self.battles, self.values, self.colors)
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
             if type(self.values[key]) is float:
@@ -304,12 +304,14 @@ class SessionStatistic(object):
 
     def replaceBattleResultMessage(self, message, arenaUniqueID):
         battleStatText = self.config.get('battleStatText', '')
-        for key in self.battleStats[arenaUniqueID].keys():
-            if type(self.battleStats[arenaUniqueID]) is float:
-                battleStatText = battleStatText.replace('{{%s}}' % key, str(round(self.battleStats[arenaUniqueID][key], 2)))
+        values = self.battleStats[arenaUniqueID]['values']
+        colors = self.battleStats[arenaUniqueID]['colors']
+        for key in values.keys():
+            if type(values[key]) is float:
+                battleStatText = battleStatText.replace('{{%s}}' % key, str(round(values[key], 2)))
             else:
-                battleStatText = battleStatText.replace('{{%s}}' % key, str(self.battleStats[arenaUniqueID][key]))
-            #battleStatText = battleStatText.replace('{{c:%s}}' % key, self.colors[key])
+                battleStatText = battleStatText.replace('{{%s}}' % key, str(values[key]))
+            battleStatText = battleStatText.replace('{{c:%s}}' % key, colors[key])
         return re.sub('</font>$', '\n' + battleStatText + '</font>', message)
 
 old_onBecomePlayer = Account.onBecomePlayer

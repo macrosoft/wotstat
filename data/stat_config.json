@@ -1,6 +1,6 @@
 {
     "showStatForBattle": true,
-    "battleStatText": "<font color='#FFCC66'>WN8: <font color='#D6D7D4'><b>{{WN8}} ({{XWN8}})</font></font>",
+    "battleStatText": "<font color='#D6D7D4'>WN8: <font color='{{c:WN8}}'><b>{{WN8}} ({{XWN8}})</font></font>",
     "showResetButton": false,
     "dailyAutoReset": true,
     "battleEndedMessageDefeat": "<font color='#FE0E00'>Бой {{map}} - {{vehicle}} завершился поражением.</font>",
