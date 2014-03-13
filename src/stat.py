@@ -314,6 +314,26 @@ class SessionStatistic(object):
             battleStatText = battleStatText.replace('{{c:%s}}' % key, colors[key])
         return re.sub('</font>$', '\n' + battleStatText + '</font>', message)
 
+    def overrideNotificationList(self, notificationList):
+        messagesList = notificationList._model.getMessagesList()
+        formedList = []
+        for message, isServerMsg, flag, notify, auxData, preventPopup in messagesList:
+            if self.config.get('showStatForBattle', True) and message.get('type','') == 'battleResult':
+                arenaUniqueID = int(message['value'])
+                if self.battleStats.has_key(arenaUniqueID):
+                    message['message'] = self.replaceBattleResultMessage(message['message'], arenaUniqueID)
+            show = True
+            if type(message['message']) == str:
+                msg = unicode(message['message'], 'utf-8')
+                for pattern in self.config.get('hideMessagePatterns', []):
+                    if re.search(pattern, msg, re.I):
+                        show = False
+                        break
+            if show:
+                notificationObject = notificationList._formFullNotificationObject(message, flag, notify, auxData)
+                formedList.append(notificationObject)
+        return formedList
+
 old_onBecomePlayer = Account.onBecomePlayer
 
 def new_onBecomePlayer(self):
@@ -336,17 +356,9 @@ old_nlv_populate = NotificationListView._populate
 
 def new_nlv_populate(self, target = 'SummaryMessage'):
     old_nlv_populate(self)
-    if stat.config.get('showStatForBattle', True):
+    if stat.config.get('showStatForBattle', True) or len(stat.config.get('hideMessagePatterns', [])):
         super(NotificationListView, self)._populate()
-        messagesList = self._model.getMessagesList()
-        formedList = []
-        for message, isServerMsg, flag, notify, auxData, preventPopup in messagesList:
-            if message.get('type','') == 'battleResult':
-                arenaUniqueID = int(message['value'])
-                if stat.battleStats.has_key(arenaUniqueID):
-                    message['message'] = stat.replaceBattleResultMessage(message['message'], arenaUniqueID)
-            notificationObject = self._formFullNotificationObject(message, flag, notify, auxData)
-            formedList.append(notificationObject)
+        formedList = stat.overrideNotificationList(self)
         self.as_setMessagesListS(formedList)
         self.onLayoutSettingsChanged({})
     self.as_appendMessageS(stat.createMessage())
