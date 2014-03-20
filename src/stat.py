@@ -312,7 +312,7 @@ class SessionStatistic(object):
             else:
                 battleStatText = battleStatText.replace('{{%s}}' % key, str(values[key]))
             battleStatText = battleStatText.replace('{{c:%s}}' % key, colors[key])
-        return re.sub('</font>$', '\n' + battleStatText + '</font>', message)
+        return message + '<font color=\'#929290\'>' + battleStatText + '</font>'
 
     def overrideNotificationList(self, notificationList):
         messagesList = notificationList._model.getMessagesList()
