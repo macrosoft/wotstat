@@ -102,7 +102,26 @@ class SessionStatistic(object):
         statCache.close()
 
     def createMessage(self):
-        pass
+        message = {
+            'typeID': 1,
+            'message': {
+                'bgIcon': '',
+                'defaultIcon': '',
+                'savedID': 0,
+                'timestamp': -1,
+                'filters': [],
+                'buttonsLayout': [],
+                'message': self.message,
+                'type': 'black',
+                'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
+            },
+            'hidingAnimationSpeed': 2000.0,
+            'notify': True,
+            'lifeTime': 6000.0,
+            'entityID': 10,
+            'auxData': ['GameGreeting']
+        }
+        return message
 
     def battleResultsCallback(self, responseCode, value = None, revision = 0):
         if responseCode < 0:
@@ -314,7 +333,7 @@ old_nlv_populate = NotificationListView._populate
 
 def new_nlv_populate(self):
     old_nlv_populate(self)
-    pass
+    self.as_appendMessageS(stat.createMessage())
 
 NotificationListView._populate = new_nlv_populate
 
