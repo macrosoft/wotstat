@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import BigWorld
 import ArenaType
+import constants
 import datetime
 import json
 import os
@@ -126,6 +127,8 @@ class SessionStatistic(object):
     def battleResultsCallback(self, responseCode, value = None, revision = 0):
         if responseCode < 0:
             self.battleResultsBusy.release()
+            return
+        if value['common']['guiType'] == constants.ARENA_GUI_TYPE.TRAINING:
             return
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
