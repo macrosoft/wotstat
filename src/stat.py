@@ -319,8 +319,8 @@ class SessionStatistic(object):
         formedList = []
         for message, isServerMsg, flag, notify, auxData, preventPopup in messagesList:
             if self.config.get('showStatForBattle', True) and message.get('type','') == 'battleResult':
-                arenaUniqueID = int(message['value'])
-                if self.battleStats.has_key(arenaUniqueID):
+                arenaUniqueID = int(message.get('value', -1))
+                if arenaUniqueID > 0 and self.battleStats.has_key(arenaUniqueID):
                     message['message'] = self.replaceBattleResultMessage(message['message'], arenaUniqueID)
             show = True
             if type(message['message']) == str:
