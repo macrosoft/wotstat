@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import BigWorld
 import ArenaType
-import constants
 import datetime
 import json
 import os
@@ -308,11 +307,14 @@ class SessionStatistic(object):
             msg = msg.replace('{{c:%s}}' % key, self.colors[key])
         self.message = msg
 
-    def replaceBattleResultMessage(self, message, arenaUniqueID):
-        pass
-
-    def overrideNotificationList(self, notificationList):
-        pass
+    def filterNotificationList(self, item):
+        message = item.get('message', {}).get('message', '')
+        if type(message) == str:
+            msg = unicode(message, 'utf-8')
+            for pattern in self.config.get('hideMessagePatterns', []):
+                if re.search(pattern, msg, re.I):
+                    return False
+        return True
 
 old_onBecomePlayer = Account.onBecomePlayer
 
@@ -339,6 +341,14 @@ def new_nlv_populate(self):
     self.as_appendMessageS(stat.createMessage())
 
 NotificationListView._populate = new_nlv_populate
+
+def new_nlv_setNotificationList(self):
+    formedList = map(lambda item: item.getListVO(), self._model.collection.getListIterator())
+    if len(stat.config.get('hideMessagePatterns', [])):
+        formedList = filter(stat.filterNotificationList, formedList)
+    self.as_setMessagesListS(formedList)
+
+NotificationListView._NotificationListView__setNotificationList = new_nlv_setNotificationList
 
 old_brf_format = BattleResultsFormatter.format
 
