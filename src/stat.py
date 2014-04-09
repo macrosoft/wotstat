@@ -99,7 +99,7 @@ class SessionStatistic(object):
         if not self.cache['players'].has_key(self.playerName):
             self.cache['players'][self.playerName] = {}
         self.cache['players'][self.playerName]['battles'] = self.battles
-        statCache.write(json.dumps(self.cache))
+        statCache.write(json.dumps(self.cache, sort_keys = True, indent = 4, separators=(',', ': ')))
         statCache.close()
 
     def createMessage(self):
