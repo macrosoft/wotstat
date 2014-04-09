@@ -128,7 +128,7 @@ class SessionStatistic(object):
         if responseCode < 0:
             self.battleResultsBusy.release()
             return
-        if value['common']['guiType'] == constants.ARENA_GUI_TYPE.TRAINING:
+        if value['common']['guiType'] in self.config.get('ignoreBattleType', []):
             return
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
