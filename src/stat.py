@@ -307,14 +307,34 @@ class SessionStatistic(object):
             msg = msg.replace('{{c:%s}}' % key, self.colors[key])
         self.message = msg
 
+    def replaceBattleResultMessage(self, message, arenaUniqueID):
+        battleStatText = self.config.get('battleStatText', '')
+        values = self.battleStats[arenaUniqueID]['values']
+        colors = self.battleStats[arenaUniqueID]['colors']
+        for key in values.keys():
+            if type(values[key]) is float:
+                battleStatText = battleStatText.replace('{{%s}}' % key, str(round(values[key], 2)))
+            else:
+                battleStatText = battleStatText.replace('{{%s}}' % key, str(values[key]))
+            battleStatText = battleStatText.replace('{{c:%s}}' % key, colors[key])
+        return message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
+
     def filterNotificationList(self, item):
-        message = item.get('message', {}).get('message', '')
+        message = item['message'].get('message', '')
         if type(message) == str:
             msg = unicode(message, 'utf-8')
             for pattern in self.config.get('hideMessagePatterns', []):
                 if re.search(pattern, msg, re.I):
                     return False
         return True
+
+    def expandStatNotificationList(self, item):
+        arenaUniqueID = int(item['message'].get('savedID', -1))
+        message = item['message'].get('message', '')
+        if arenaUniqueID > 0 and self.battleStats.has_key(arenaUniqueID) and type(message) == str:
+            message = self.replaceBattleResultMessage(message, arenaUniqueID)
+            item['message']['message'] = message
+        return item
 
 old_onBecomePlayer = Account.onBecomePlayer
 
@@ -346,6 +366,8 @@ def new_nlv_setNotificationList(self):
     formedList = map(lambda item: item.getListVO(), self._model.collection.getListIterator())
     if len(stat.config.get('hideMessagePatterns', [])):
         formedList = filter(stat.filterNotificationList, formedList)
+    if stat.config.get('showStatForBattle', True):
+        formedList = map(stat.expandStatNotificationList, formedList)
     self.as_setMessagesListS(formedList)
 
 NotificationListView._NotificationListView__setNotificationList = new_nlv_setNotificationList
