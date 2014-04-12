@@ -4,6 +4,7 @@
     "hideMessagePatterns": ["Рекомендуем выполнить привязку вашего аккаунта к телефону", "Рекомендуем сменить пароль", "Ремонт .* выполнен успешно", "Боекомплект на .* пополнен успешно", "Высадка танкиста в Казарму выполнена успешно", "Пересадка танкиста выполнена успешно"],
     "ignoreBattleType": [2, 4],
     "showResetButton": false,
+    "textResetButton": "Сброс",
     "dailyAutoReset": true,
     "battleEndedMessageDefeat": "<font color='#FE0E00'>Бой {{map}} - {{vehicle}} завершился поражением.</font>",
     "battleEndedMessageDraw": "<font color='#FE7903'>Бой {{map}} - {{vehicle}} завершился ничьей.</font>",

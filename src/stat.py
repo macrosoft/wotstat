@@ -11,6 +11,7 @@ from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
 from gui.shared.utils.requesters import StatsRequester
 from helpers import i18n
+from notification.actions_handlers import NotificationsActionsHandlers
 from notification.NotificationListView import NotificationListView
 from messenger import MessengerEntry
 from messenger.formatters.service_channel import BattleResultsFormatter
@@ -119,9 +120,15 @@ class SessionStatistic(object):
             'hidingAnimationSpeed': 2000.0,
             'notify': True,
             'lifeTime': 6000.0,
-            'entityID': 10,
+            'entityID': 99999,
             'auxData': ['GameGreeting']
         }
+        if self.config.get('showResetButton', False):
+            message['message']['buttonsLayout'].append({
+                'action': 'wotstatReset',
+                'type': 'submit',
+                'label': self.config.get('textResetButton', 'Reset')
+            })
         return message
 
     def battleResultsCallback(self, responseCode, value = None, revision = 0):
@@ -401,5 +408,18 @@ def new_brf_format(self, message, *args):
     return result
 
 BattleResultsFormatter.format = new_brf_format
+
+old_nah_handleAction = NotificationsActionsHandlers.handleAction
+
+def new_nah_handleAction(self, model, typeID, entityID, actionName):
+    if actionName == 'wotstatReset':
+        stat.battles = []
+        stat.save()
+        stat.updateMessage()
+        new_nlv_populate(self)
+    else:
+        old_nah_handleAction(self, model, typeID, entityID, actionName)
+
+NotificationsActionsHandlers.handleAction = new_nah_handleAction
 
 stat = SessionStatistic()
