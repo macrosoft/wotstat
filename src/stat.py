@@ -416,7 +416,6 @@ def new_nah_handleAction(self, model, typeID, entityID, actionName):
         stat.battles = []
         stat.save()
         stat.updateMessage()
-        new_nlv_populate(self)
     else:
         old_nah_handleAction(self, model, typeID, entityID, actionName)
 
