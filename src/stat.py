@@ -11,7 +11,6 @@ from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
 from gui.shared.utils.requesters import StatsRequester
 from helpers import i18n
-from notification.actions_handlers import NotificationsActionsHandlers
 from notification.NotificationListView import NotificationListView
 from messenger import MessengerEntry
 from messenger.formatters.service_channel import BattleResultsFormatter
@@ -368,6 +367,18 @@ def new_nlv_populate(self):
     old_nlv_populate(self)
     self.as_appendMessageS(stat.createMessage())
 
+old_nlv_onClickAction = NotificationListView.onClickAction
+
+def new_onClickAction(self, typeID, entityID, action):
+    if action == 'wotstatReset':
+        stat.battles = []
+        stat.save()
+        stat.updateMessage()
+    else:
+        old_nlv_onClickAction(self, typeID, entityID, action)
+
+NotificationListView.onClickAction = new_onClickAction
+
 NotificationListView._populate = new_nlv_populate
 
 def new_nlv_setNotificationList(self):
@@ -408,17 +419,5 @@ def new_brf_format(self, message, *args):
     return result
 
 BattleResultsFormatter.format = new_brf_format
-
-old_nah_handleAction = NotificationsActionsHandlers.handleAction
-
-def new_nah_handleAction(self, model, typeID, entityID, actionName):
-    if actionName == 'wotstatReset':
-        stat.battles = []
-        stat.save()
-        stat.updateMessage()
-    else:
-        old_nah_handleAction(self, model, typeID, entityID, actionName)
-
-NotificationsActionsHandlers.handleAction = new_nah_handleAction
 
 stat = SessionStatistic()
