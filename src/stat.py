@@ -50,11 +50,15 @@ class SessionStatistic(object):
         self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
             if datetime.datetime.now().hour >= 4 \
             else (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+        self.thread = threading.Thread(target=self.mainLoop)
+        self.thread.setDaemon(True)
+        self.thread.start()
 
     def load(self):
-        if self.loaded:
+        if self.loaded and self.playerName == BigWorld.player().name:
             return
         self.loaded = True
+        self.battles = []
         self.playerName = BigWorld.player().name
         path_items = minidom.parse(os.path.join(os.getcwd(), 'paths.xml')).getElementsByTagName('Path')
         for root in path_items:
@@ -86,9 +90,6 @@ class SessionStatistic(object):
         if invalidCache:
             self.cache = {}
         self.updateMessage()
-        self.thread = threading.Thread(target=self.mainLoop)
-        self.thread.setDaemon(True)
-        self.thread.start()
 
     def save(self):
         statCache = open(self.statCacheFilePath, 'w')
