@@ -34,6 +34,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
+        self.cacheVersion = 1
         self.queue = Queue()
         self.loaded = False
         self.battleStats = {}
@@ -83,8 +84,9 @@ class SessionStatistic(object):
         if os.path.isfile(self.statCacheFilePath):
             with open(self.statCacheFilePath) as jsonCache:
                 self.cache = json.load(jsonCache)
-                if self.cache.get('date', '') == self.startDate or \
-                    not self.config.get('dailyAutoReset', True):
+                if self.cache.get('version', 0) == self.cacheVersion and \
+                    (self.cache.get('date', '') == self.startDate or \
+                    not self.config.get('dailyAutoReset', True)):
                     if self.cache.get('players', {}).has_key(self.playerName):
                         self.battles = self.cache['players'][self.playerName]['battles']
                     invalidCache = False
@@ -94,6 +96,7 @@ class SessionStatistic(object):
 
     def save(self):
         statCache = open(self.statCacheFilePath, 'w')
+        self.cache['version'] = self.cacheVersion
         self.cache['date'] = self.startDate
         if not self.cache.has_key('players'):
             self.cache['players'] = {}
