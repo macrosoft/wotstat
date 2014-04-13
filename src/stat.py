@@ -149,6 +149,11 @@ class SessionStatistic(object):
             proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
                        value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0] -\
                        value['personal']['creditsContributionOut']
+        details = value['personal']['details']
+        assist = 0
+        for key in details.keys():
+            assist += details[key]['damageAssistedRadio']
+            assist += details[key]['damageAssistedTrack']
         battle = {
             'idNum': vehicleCompDesc,
             'name': vt.name,
@@ -158,10 +163,12 @@ class SessionStatistic(object):
             'frag': value['personal']['kills'],
             'spot': value['personal']['spotted'],
             'def': value['personal']['droppedCapturePoints'],
+            'cap': value['personal']['capturePoints'],
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
             'credits': proceeds,
-            'battleTier': battleTier
+            'battleTier': battleTier,
+            'assist': assist
         }
         self.battles.append(battle)
         self.save()
@@ -240,7 +247,8 @@ class SessionStatistic(object):
         values['battlesCount'] = len(battles)
         totalTier = 0
         totalBattleTier = 0
-        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalXP', 'totalOriginXP', 'credits']
+        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
+            'totalAssist', 'totalXP', 'totalOriginXP','credits']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -253,6 +261,8 @@ class SessionStatistic(object):
             values['totalFrag'] += battle['frag']
             values['totalSpot'] += battle['spot']
             values['totalDef'] += battle['def']
+            values['totalCap'] += battle['cap']
+            values['totalAssist'] += battle['assist']
             values['totalXP'] += battle['xp']
             values['totalOriginXP'] += battle['originalXP']
             values['credits'] += battle['credits']
@@ -272,6 +282,8 @@ class SessionStatistic(object):
             values['avgFrag'] = float(values['totalFrag'])/values['battlesCount']
             values['avgSpot'] = float(values['totalSpot'])/values['battlesCount']
             values['avgDef'] = float(values['totalDef'])/values['battlesCount']
+            values['avgCap'] = float(values['totalCap'])/values['battlesCount']
+            values['avgAssist'] = int(values['totalAssist'])/values['battlesCount']
             values['avgXP'] = int(values['totalOriginXP']/values['battlesCount'])
             values['avgCredits'] = int(values['credits']/values['battlesCount'])
             values['avgTier'] = round(float(totalTier)/values['battlesCount'], 1)
@@ -283,8 +295,13 @@ class SessionStatistic(object):
                 values['avgSpot']*125 + min(values['avgDef'], 2.2)*100 + \
                 ((185/(0.17 + math.exp((values['avgWinRate'] - 35)* -0.134))) - 500)*0.45 + \
                 (6-min(values['avgTier'], 6))*-60))
+            values['EFF'] = max(0, int(values['avgDamage']*(10/(values['avgTier'] + 2)) *\
+                (0.23 + 2*values['avgTier']/100) + values['avgFrag'] * 250 + \
+                values['avgSpot'] * 150 + math.log(values['avgCap'] + 1, 1.732) * 150 + \
+                values['avgDef'] * 150))
         else:
-            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6']:
+            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgAssist', \
+                'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6', 'EFF']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
