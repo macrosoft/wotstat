@@ -314,9 +314,9 @@ class SessionStatistic(object):
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
             if type(self.values[key]) is float:
-                msg = msg.replace('{{%s}}' % key, str(round(self.values[key], 2)))
+                msg = msg.replace('{{%s}}' % key, format(self.values[key], ',.2f'))
             else:
-                msg = msg.replace('{{%s}}' % key, str(self.values[key]))
+                msg = msg.replace('{{%s}}' % key, format(self.values[key], ',d'))
             msg = msg.replace('{{c:%s}}' % key, self.colors[key])
         self.message = msg
 

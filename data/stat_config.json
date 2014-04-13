@@ -17,14 +17,14 @@
     "battleEndedMessageDraw": "<font color='#FE7903'>Бой {{map}} - {{vehicle}} завершился ничьей.</font>",
     "battleEndedMessageWin": "<font color='#60FF00'>Бой {{map}} - {{vehicle}} завершился победой!</font>",
     "template": [
-        "<textformat leading='-2' tabstops='[55,120]'><font color='#FFCC66'>WN8:</font><tab><font color='{{c:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font><tab><font color='#FFCC66'><b>{{avgTier}} (+{{avgBattleTierDiff}}) </b>ур</font></textformat>",
-        "<textformat leading='-2' tabstops='[55,120,190]'><font color='#FFCC66'>Победы:</font><tab><font color='{{c:rWIN}}'><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
+        "<font size='12'><textformat leading='-4' tabstops='[50,130]'><font color='#FFCC66'>WN8:</font><tab><font color='{{c:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font><tab><font color='#FFCC66'><b>{{avgTier}} (+{{avgBattleTierDiff}}) </b>ур</font></textformat>",
+        "<textformat leading='-4' tabstops='[50,130,190]'><font color='#FFCC66'>Победы:</font><tab><font color='{{c:rWIN}}'><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
         "<font color='#FFCC66'>Урон:</font><tab><font color='{{c:rDAMAGE}}'><b>{{totalDmg}}<tab>{{avgDamage}}<tab>{{rDAMAGE}}</b></font>",
         "<font color='#FFCC66'>Фраги:</font><tab><font color='{{c:rFRAG}}'><b>{{totalFrag}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
         "<font color='#FFCC66'>Засвет:</font><tab><font color='{{c:rSPOT}}'><b>{{totalSpot}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
         "<font color='#FFCC66'>Защита:</font><tab><font color='{{c:rDEF}}'><b>{{totalDef}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
         "<font color='#FFCC66'>Опыт:</font><tab><font color='{{c:avgXP}}'><b>{{totalXP}}<tab>{{avgXP}}</b></font>",
-        "<font color='#FFCC66'>Кредиты:</font><tab><font color='{{c:credits}}'><b>{{credits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'><tab>{{avgCredits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'></b></font></textformat>"
+        "<font color='#FFCC66'>Кредиты:</font><tab><font color='{{c:credits}}'><b>{{credits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'><tab>{{avgCredits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'></b></font></textformat><font>"
     ],
     "colors": {
         "WN8": [
@@ -33,7 +33,7 @@
             {"value": 1030, "color": "#F8F400"},
             {"value": 1638, "color": "#60FF00"},
             {"value": 2253, "color": "#02C9B3"},
-            {"value": 3250, "color": "#D042F3"}
+            {"value": 2895, "color": "#D042F3"}
         ],
         "rWIN": [
             {"value": 0.34, "color": "#FE0E00"},
