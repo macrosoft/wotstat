@@ -4,6 +4,7 @@ import BigWorld
 import ArenaType
 import datetime
 import json
+import math
 import os
 import re
 from Account import Account
@@ -277,8 +278,13 @@ class SessionStatistic(object):
             values['avgBattleTier'] = round(float(totalBattleTier)/values['battlesCount'], 1)
             for key in expKeys:
                 values[key] = expValues['total_' + key]/values['battlesCount']
+            values['WN6'] = max(0, int((1240 - 1040/(min(values['avgTier'], 6))**0.164)*values['avgFrag'] + \
+                values['avgDamage']*530/(184*math.exp(0.24*values['avgTier']) + 130) + \
+                values['avgSpot']*125 + min(values['avgDef'], 2.2)*100 + \
+                ((185/(0.17 + math.exp((values['avgWinRate'] - 35)* -0.134))) - 500)*0.45 + \
+                (6-min(values['avgTier'], 6))*-60))
         else:
-            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier']:
+            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
