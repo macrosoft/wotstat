@@ -327,6 +327,7 @@ class SessionStatistic(object):
             (0.0000000000000000000812*values['WN8'] + 0.0000000000000001616) - 0.000000000006736) +\
             0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
         values['WN8'] = int(values['WN8'])
+        values['avgDamage'] = int(values['avgDamage'])
         self.refreshColorMacros(values, colors)
 
     def updateMessage(self):
