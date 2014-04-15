@@ -4,6 +4,7 @@ import BigWorld
 import ArenaType
 import datetime
 import json
+import math
 import os
 import re
 from Account import Account
@@ -20,7 +21,7 @@ from xml.dom import minidom
 from debug_utils import *
 
 def hexToRgb(hex):
-    return [int(hex[i:i+2], 16) for i in range(1,6,2)] 
+    return [int(hex[i:i+2], 16) for i in range(1,6,2)]
 
 def gradColor(startColor, endColor, val):
     start = hexToRgb(startColor)
@@ -33,6 +34,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
+        self.cacheVersion = 1
         self.queue = Queue()
         self.loaded = False
         self.battleStats = {}
@@ -50,11 +52,15 @@ class SessionStatistic(object):
         self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
             if datetime.datetime.now().hour >= 4 \
             else (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+        self.thread = threading.Thread(target=self.mainLoop)
+        self.thread.setDaemon(True)
+        self.thread.start()
 
     def load(self):
-        if self.loaded:
+        if self.loaded and self.playerName == BigWorld.player().name:
             return
         self.loaded = True
+        self.battles = []
         self.playerName = BigWorld.player().name
         path_items = minidom.parse(os.path.join(os.getcwd(), 'paths.xml')).getElementsByTagName('Path')
         for root in path_items:
@@ -78,51 +84,61 @@ class SessionStatistic(object):
         if os.path.isfile(self.statCacheFilePath):
             with open(self.statCacheFilePath) as jsonCache:
                 self.cache = json.load(jsonCache)
-                if self.cache.get('date', '') == self.startDate or \
-                    not self.config.get('dailyAutoReset', True):
+                if self.cache.get('version', 0) == self.cacheVersion and \
+                    (self.cache.get('date', '') == self.startDate or \
+                    not self.config.get('dailyAutoReset', True)):
                     if self.cache.get('players', {}).has_key(self.playerName):
                         self.battles = self.cache['players'][self.playerName]['battles']
                     invalidCache = False
         if invalidCache:
             self.cache = {}
         self.updateMessage()
-        self.thread = threading.Thread(target=self.mainLoop)
-        self.thread.setDaemon(True)
-        self.thread.start()
 
     def save(self):
         statCache = open(self.statCacheFilePath, 'w')
+        self.cache['version'] = self.cacheVersion
         self.cache['date'] = self.startDate
         if not self.cache.has_key('players'):
             self.cache['players'] = {}
         if not self.cache['players'].has_key(self.playerName):
             self.cache['players'][self.playerName] = {}
         self.cache['players'][self.playerName]['battles'] = self.battles
-        statCache.write(json.dumps(self.cache))
+        statCache.write(json.dumps(self.cache, sort_keys = True, indent = 4, separators=(',', ': ')))
         statCache.close()
 
     def createMessage(self):
-        msg = {
-            'type': 'black',
-            'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
-            'message': self.message,
-            'showMore': {
-                'command': 'wotstat',
-                'enabled': self.config.get('showResetButton', False),
-                'param': 'reset'
-            }
-        }
         message = {
-            'message': msg,
-            'priority': True,
-            'notify': False,
+            'typeID': 1,
+            'message': {
+                'bgIcon': '',
+                'defaultIcon': '',
+                'savedID': 0,
+                'timestamp': -1,
+                'filters': [],
+                'buttonsLayout': [],
+                'message': self.message,
+                'type': 'black',
+                'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
+            },
+            'hidingAnimationSpeed': 2000.0,
+            'notify': True,
+            'lifeTime': 6000.0,
+            'entityID': 99999,
             'auxData': ['GameGreeting']
         }
+        if self.config.get('showResetButton', False):
+            message['message']['buttonsLayout'].append({
+                'action': 'wotstatReset',
+                'type': 'submit',
+                'label': self.config.get('textResetButton', 'Reset')
+            })
         return message
 
     def battleResultsCallback(self, responseCode, value = None, revision = 0):
         if responseCode < 0:
             self.battleResultsBusy.release()
+            return
+        if value['common']['guiType'] in self.config.get('ignoreBattleType', []):
             return
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
@@ -136,6 +152,11 @@ class SessionStatistic(object):
             proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
                        value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0] -\
                        value['personal']['creditsContributionOut']
+        details = value['personal']['details']
+        assist = 0
+        for key in details.keys():
+            assist += details[key]['damageAssistedRadio']
+            assist += details[key]['damageAssistedTrack']
         battle = {
             'idNum': vehicleCompDesc,
             'name': vt.name,
@@ -145,10 +166,12 @@ class SessionStatistic(object):
             'frag': value['personal']['kills'],
             'spot': value['personal']['spotted'],
             'def': value['personal']['droppedCapturePoints'],
+            'cap': value['personal']['capturePoints'],
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
             'credits': proceeds,
-            'battleTier': battleTier
+            'battleTier': battleTier,
+            'assist': assist
         }
         self.battles.append(battle)
         self.save()
@@ -192,7 +215,7 @@ class SessionStatistic(object):
                     colors[key] = gradColor(clrs[i - 1]['color'], clrs[i]['color'], val)
             else:
                 colors[key] = '#FFFFFF'
-    
+
     def calcExpected(self, newIdNum):
         v = vehiclesWG.getVehicleType(newIdNum)
         newTier = v.level
@@ -227,7 +250,8 @@ class SessionStatistic(object):
         values['battlesCount'] = len(battles)
         totalTier = 0
         totalBattleTier = 0
-        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalXP', 'totalOriginXP', 'credits']
+        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
+            'totalAssist', 'totalXP', 'totalOriginXP','credits']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -240,6 +264,8 @@ class SessionStatistic(object):
             values['totalFrag'] += battle['frag']
             values['totalSpot'] += battle['spot']
             values['totalDef'] += battle['def']
+            values['totalCap'] += battle['cap']
+            values['totalAssist'] += battle['assist']
             values['totalXP'] += battle['xp']
             values['totalOriginXP'] += battle['originalXP']
             values['credits'] += battle['credits']
@@ -259,14 +285,26 @@ class SessionStatistic(object):
             values['avgFrag'] = float(values['totalFrag'])/values['battlesCount']
             values['avgSpot'] = float(values['totalSpot'])/values['battlesCount']
             values['avgDef'] = float(values['totalDef'])/values['battlesCount']
+            values['avgCap'] = float(values['totalCap'])/values['battlesCount']
+            values['avgAssist'] = int(values['totalAssist'])/values['battlesCount']
             values['avgXP'] = int(values['totalOriginXP']/values['battlesCount'])
             values['avgCredits'] = int(values['credits']/values['battlesCount'])
             values['avgTier'] = round(float(totalTier)/values['battlesCount'], 1)
             values['avgBattleTier'] = round(float(totalBattleTier)/values['battlesCount'], 1)
             for key in expKeys:
                 values[key] = expValues['total_' + key]/values['battlesCount']
+            values['WN6'] = max(0, int((1240 - 1040/(min(values['avgTier'], 6))**0.164)*values['avgFrag'] + \
+                values['avgDamage']*530/(184*math.exp(0.24*values['avgTier']) + 130) + \
+                values['avgSpot']*125 + min(values['avgDef'], 2.2)*100 + \
+                ((185/(0.17 + math.exp((values['avgWinRate'] - 35)* -0.134))) - 500)*0.45 + \
+                (6-min(values['avgTier'], 6))*-60))
+            values['EFF'] = max(0, int(values['avgDamage']*(10/(values['avgTier'] + 2)) *\
+                (0.23 + 2*values['avgTier']/100) + values['avgFrag'] * 250 + \
+                values['avgSpot'] * 150 + math.log(values['avgCap'] + 1, 1.732) * 150 + \
+                values['avgDef'] * 150))
         else:
-            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier']:
+            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgAssist', \
+                'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6', 'EFF']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
@@ -289,6 +327,7 @@ class SessionStatistic(object):
             (0.0000000000000000000812*values['WN8'] + 0.0000000000000001616) - 0.000000000006736) +\
             0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
         values['WN8'] = int(values['WN8'])
+        values['avgDamage'] = int(values['avgDamage'])
         self.refreshColorMacros(values, colors)
 
     def updateMessage(self):
@@ -296,9 +335,9 @@ class SessionStatistic(object):
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
             if type(self.values[key]) is float:
-                msg = msg.replace('{{%s}}' % key, str(round(self.values[key], 2)))
+                msg = msg.replace('{{%s}}' % key, format(self.values[key], ',.2f'))
             else:
-                msg = msg.replace('{{%s}}' % key, str(self.values[key]))
+                msg = msg.replace('{{%s}}' % key, format(self.values[key], ',d'))
             msg = msg.replace('{{c:%s}}' % key, self.colors[key])
         self.message = msg
 
@@ -312,27 +351,24 @@ class SessionStatistic(object):
             else:
                 battleStatText = battleStatText.replace('{{%s}}' % key, str(values[key]))
             battleStatText = battleStatText.replace('{{c:%s}}' % key, colors[key])
-        return message + '<font color=\'#929290\'>' + battleStatText + '</font>'
+        return message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
 
-    def overrideNotificationList(self, notificationList):
-        messagesList = notificationList._model.getMessagesList()
-        formedList = []
-        for message, isServerMsg, flag, notify, auxData, preventPopup in messagesList:
-            if self.config.get('showStatForBattle', True) and message.get('type','') == 'battleResult':
-                arenaUniqueID = int(message.get('value', -1))
-                if arenaUniqueID > 0 and self.battleStats.has_key(arenaUniqueID):
-                    message['message'] = self.replaceBattleResultMessage(message['message'], arenaUniqueID)
-            show = True
-            if type(message['message']) == str:
-                msg = unicode(message['message'], 'utf-8')
-                for pattern in self.config.get('hideMessagePatterns', []):
-                    if re.search(pattern, msg, re.I):
-                        show = False
-                        break
-            if show:
-                notificationObject = notificationList._formFullNotificationObject(message, flag, notify, auxData)
-                formedList.append(notificationObject)
-        return formedList
+    def filterNotificationList(self, item):
+        message = item['message'].get('message', '')
+        if type(message) == str:
+            msg = unicode(message, 'utf-8')
+            for pattern in self.config.get('hideMessagePatterns', []):
+                if re.search(pattern, msg, re.I):
+                    return False
+        return True
+
+    def expandStatNotificationList(self, item):
+        arenaUniqueID = int(item['message'].get('savedID', -1))
+        message = item['message'].get('message', '')
+        if arenaUniqueID > 0 and self.battleStats.has_key(arenaUniqueID) and type(message) == str:
+            message = self.replaceBattleResultMessage(message, arenaUniqueID)
+            item['message']['message'] = message
+        return item
 
 old_onBecomePlayer = Account.onBecomePlayer
 
@@ -354,34 +390,33 @@ Account.onBecomeNonPlayer = new_onBecomeNonPlayer
 
 old_nlv_populate = NotificationListView._populate
 
-def new_nlv_populate(self, target = 'SummaryMessage'):
+def new_nlv_populate(self):
     old_nlv_populate(self)
-    if stat.config.get('showStatForBattle', True) or len(stat.config.get('hideMessagePatterns', [])):
-        super(NotificationListView, self)._populate()
-        formedList = stat.overrideNotificationList(self)
-        self.as_setMessagesListS(formedList)
-        self.onLayoutSettingsChanged({})
     self.as_appendMessageS(stat.createMessage())
+
+old_nlv_onClickAction = NotificationListView.onClickAction
+
+def new_onClickAction(self, typeID, entityID, action):
+    if action == 'wotstatReset':
+        stat.battles = []
+        stat.save()
+        stat.updateMessage()
+    else:
+        old_nlv_onClickAction(self, typeID, entityID, action)
+
+NotificationListView.onClickAction = new_onClickAction
 
 NotificationListView._populate = new_nlv_populate
 
-old_nlv_onMessageShowMore = NotificationListView.onMessageShowMore
+def new_nlv_setNotificationList(self):
+    formedList = map(lambda item: item.getListVO(), self._model.collection.getListIterator())
+    if len(stat.config.get('hideMessagePatterns', [])):
+        formedList = filter(stat.filterNotificationList, formedList)
+    if stat.config.get('showStatForBattle', True):
+        formedList = map(stat.expandStatNotificationList, formedList)
+    self.as_setMessagesListS(formedList)
 
-def new_nlv_onMessageShowMore(self, data):
-    if hasattr(data, 'command'):
-        command = data.command
-        if command == 'wotstat':
-            if data.param == 'reset':
-                stat.battles = []
-                stat.save()
-                stat.updateMessage()
-                new_nlv_populate(self)
-            else:
-                new_nlv_populate(self, target = data.param)
-        else:
-            old_nlv_onMessageShowMore(self, data)
-
-NotificationListView.onMessageShowMore = new_nlv_onMessageShowMore
+NotificationListView._NotificationListView__setNotificationList = new_nlv_setNotificationList
 
 old_brf_format = BattleResultsFormatter.format
 
