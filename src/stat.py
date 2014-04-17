@@ -152,11 +152,6 @@ class SessionStatistic(object):
             proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
                        value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0] -\
                        value['personal']['creditsContributionOut']
-        details = value['personal']['details']
-        assist = 0
-        for key in details.keys():
-            assist += details[key]['damageAssistedRadio']
-            assist += details[key]['damageAssistedTrack']
         battle = {
             'idNum': vehicleCompDesc,
             'name': vt.name,
@@ -172,7 +167,7 @@ class SessionStatistic(object):
             'credits': proceeds,
             'gold': value['personal']['gold'],
             'battleTier': battleTier,
-            'assist': assist
+            'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
         }
         self.battles.append(battle)
         self.save()
