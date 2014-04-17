@@ -34,7 +34,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
-        self.cacheVersion = 1
+        self.cacheVersion = 2
         self.queue = Queue()
         self.loaded = False
         self.battleStats = {}
@@ -170,6 +170,7 @@ class SessionStatistic(object):
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
             'credits': proceeds,
+            'gold': value['personal']['gold'],
             'battleTier': battleTier,
             'assist': assist
         }
@@ -251,7 +252,7 @@ class SessionStatistic(object):
         totalTier = 0
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
-            'totalAssist', 'totalXP', 'totalOriginXP','credits']
+            'totalAssist', 'totalXP', 'totalOriginXP', 'credits', 'gold']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -269,6 +270,7 @@ class SessionStatistic(object):
             values['totalXP'] += battle['xp']
             values['totalOriginXP'] += battle['originalXP']
             values['credits'] += battle['credits']
+            values['gold'] += battle['gold']
             totalTier += battle['tier']
             totalBattleTier += battle['battleTier']
             idNum = battle['idNum']
