@@ -295,13 +295,21 @@ class SessionStatistic(object):
                 values['avgSpot']*125 + min(values['avgDef'], 2.2)*100 + \
                 ((185/(0.17 + math.exp((values['avgWinRate'] - 35)* -0.134))) - 500)*0.45 + \
                 (6-min(values['avgTier'], 6))*-60))
+            values['XWN6'] = 100 if values['WN6'] > 2300 \
+                else int(max(min(values['WN6']*(values['WN6']*(values['WN6']*(values['WN6']*\
+                (values['WN6']*(0.00000000000000000466*values['WN6'] - 0.000000000000032413) + \
+                0.00000000007524) - 0.00000006516) + 0.00001307) + 0.05153) - 3.9, 100), 0))
             values['EFF'] = max(0, int(values['avgDamage']*(10/(values['avgTier'] + 2)) *\
                 (0.23 + 2*values['avgTier']/100) + values['avgFrag'] * 250 + \
                 values['avgSpot'] * 150 + math.log(values['avgCap'] + 1, 1.732) * 150 + \
                 values['avgDef'] * 150))
+            values['XEFF'] = 0 if values['EFF'] < 350 \
+                else int(max(min(values['EFF']*(values['EFF']*(values['EFF']*(values['EFF']*\
+                (values['EFF']*(0.00000000000000003388*values['EFF'] - 0.0000000000002469) + \
+                0.00000000069335) - 0.00000095342) + 0.0006656) -0.1485) - 0.85, 100), 0))
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgAssist', \
-                'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6', 'EFF']:
+                'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6', 'XWN6', 'EFF', 'XEFF']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
