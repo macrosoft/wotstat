@@ -165,7 +165,7 @@ class SessionStatistic(object):
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
             'credits': proceeds,
-            'gold': value['personal']['gold'],
+            'gold': value['personal']['gold'] - value['personal']['autoEquipCost'][1] - value['personal']['autoLoadCost'][1],
             'battleTier': battleTier,
             'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
         }
