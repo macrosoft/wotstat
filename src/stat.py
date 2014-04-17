@@ -335,14 +335,16 @@ class SessionStatistic(object):
         values['avgDamage'] = int(values['avgDamage'])
         self.refreshColorMacros(values, colors)
 
+    def num2Str(self, val):
+        if type(val) is float:
+            return format(val, ',.2f')
+        return format(val, ',d')
+
     def updateMessage(self):
         self.calcWN8(self.battles, self.values, self.colors)
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
-            if type(self.values[key]) is float:
-                msg = msg.replace('{{%s}}' % key, format(self.values[key], ',.2f'))
-            else:
-                msg = msg.replace('{{%s}}' % key, format(self.values[key], ',d'))
+            msg = msg.replace('{{%s}}' % key, self.num2Str(self.values[key]))
             msg = msg.replace('{{c:%s}}' % key, self.colors[key])
         self.message = msg
 
@@ -351,10 +353,7 @@ class SessionStatistic(object):
         values = self.battleStats[arenaUniqueID]['values']
         colors = self.battleStats[arenaUniqueID]['colors']
         for key in values.keys():
-            if type(values[key]) is float:
-                battleStatText = battleStatText.replace('{{%s}}' % key, str(round(values[key], 2)))
-            else:
-                battleStatText = battleStatText.replace('{{%s}}' % key, str(values[key]))
+            battleStatText = battleStatText.replace('{{%s}}' % key, self.num2Str(values[key]))
             battleStatText = battleStatText.replace('{{c:%s}}' % key, colors[key])
         return message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
 
