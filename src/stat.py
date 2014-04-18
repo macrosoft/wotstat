@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import BigWorld
 import ArenaType
+import codecs
 import datetime
 import json
 import math
@@ -71,7 +72,7 @@ class SessionStatistic(object):
                 self.statCacheFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_cache.json')
                 if os.path.isfile(configFilePath):
                     break
-        with open(configFilePath) as configFileJson:
+        with codecs.open(configFilePath, 'r', 'utf-8-sig') as configFileJson:
             self.config = json.load(configFileJson)
         with open(expectedValuesPath) as origExpectedValuesJson:
             origExpectedValues = json.load(origExpectedValuesJson)
