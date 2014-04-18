@@ -284,7 +284,8 @@ class SessionStatistic(object):
             values['avgDef'] = float(values['totalDef'])/values['battlesCount']
             values['avgCap'] = float(values['totalCap'])/values['battlesCount']
             values['avgAssist'] = int(values['totalAssist'])/values['battlesCount']
-            values['avgXP'] = int(values['totalOriginXP']/values['battlesCount'])
+            values['avgXP'] = int(values['totalXP']/values['battlesCount'])
+            values['avgOriginalXP'] = int(values['totalOriginXP']/values['battlesCount'])
             values['avgCredits'] = int(values['credits']/values['battlesCount'])
             values['avgTier'] = round(float(totalTier)/values['battlesCount'], 1)
             values['avgBattleTier'] = round(float(totalBattleTier)/values['battlesCount'], 1)
@@ -309,7 +310,7 @@ class SessionStatistic(object):
                 0.00000000069335) - 0.00000095342) + 0.0006656) -0.1485) - 0.85, 100), 0))
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgAssist', \
-                'avgXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6', 'XWN6', 'EFF', 'XEFF']:
+                'avgXP', 'avgOriginalXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6', 'XWN6', 'EFF', 'XEFF']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
@@ -336,9 +337,10 @@ class SessionStatistic(object):
         self.refreshColorMacros(values, colors)
 
     def num2Str(self, val):
-        if type(val) is float:
-            return format(val, ',.2f')
-        return format(val, ',d')
+        sVal = format(val, ',.2f') if type(val) is float \
+            else format(val, ',d')
+        sVal = sVal.replace(',', ' ')
+        return sVal
 
     def updateMessage(self):
         self.calcWN8(self.battles, self.values, self.colors)
