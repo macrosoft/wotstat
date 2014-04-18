@@ -1,6 +1,6 @@
 {
     "showStatForBattle": true,
-    "battleStatText": "WN8: <font color='{{c:WN8}}'><b>{{WN8}} ({{XWN8}})</font>",
+    "battleStatText": "WN8: <font color='{{c:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font>",
     "hideMessagePatterns": [
         "Рекомендуем выполнить привязку вашего аккаунта к телефону",
         "Рекомендуем сменить пароль",
@@ -14,6 +14,7 @@
     "showResetButton": false,
     "textResetButton": "Сброс",
     "dailyAutoReset": true,
+    "dailyAutoResetHour": 4,
     "battleEndedMessageDefeat": "<font color='#FE0E00'>Бой {{map}} - {{vehicle}} завершился поражением.</font>",
     "battleEndedMessageDraw": "<font color='#FE7903'>Бой {{map}} - {{vehicle}} завершился ничьей.</font>",
     "battleEndedMessageWin": "<font color='#60FF00'>Бой {{map}} - {{vehicle}} завершился победой!</font>",

@@ -47,12 +47,10 @@ class SessionStatistic(object):
         self.battles = []
         self.message = ''
         self.playerName = ''
+        self.startDate = None
         self.battleResultsAvailable = threading.Event()
         self.battleResultsAvailable.clear()
         self.battleResultsBusy = threading.Lock()
-        self.startDate = datetime.date.today().strftime('%Y-%m-%d') \
-            if datetime.datetime.now().hour >= 4 \
-            else (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
         self.thread = threading.Thread(target=self.mainLoop)
         self.thread.setDaemon(True)
         self.thread.start()
@@ -85,8 +83,9 @@ class SessionStatistic(object):
         if os.path.isfile(self.statCacheFilePath):
             with open(self.statCacheFilePath) as jsonCache:
                 self.cache = json.load(jsonCache)
+                self.startDate = self.cache.get('date', self.getWorkDate())
                 if self.cache.get('version', 0) == self.cacheVersion and \
-                    (self.cache.get('date', '') == self.startDate or \
+                    (self.startDate == self.getWorkDate() or \
                     not self.config.get('dailyAutoReset', True)):
                     if self.cache.get('players', {}).has_key(self.playerName):
                         self.battles = self.cache['players'][self.playerName]['battles']
@@ -94,6 +93,11 @@ class SessionStatistic(object):
         if invalidCache:
             self.cache = {}
         self.updateMessage()
+
+    def getWorkDate(self):
+        return datetime.date.today().strftime('%Y-%m-%d') \
+            if datetime.datetime.now().hour >= self.config.get('dailyAutoResetHour', 4) \
+            else (datetime.date.today() - datetime.timedelta(days = 1)).strftime('%Y-%m-%d')
 
     def save(self):
         statCache = open(self.statCacheFilePath, 'w')
@@ -170,6 +174,8 @@ class SessionStatistic(object):
             'battleTier': battleTier,
             'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
         }
+        if self.startDate != stat.getWorkDate():
+            self.reset()
         self.battles.append(battle)
         self.save()
         self.updateMessage()
@@ -180,6 +186,12 @@ class SessionStatistic(object):
         self.battleStats[arenaUniqueID]['values'] = battleStat
         self.battleStats[arenaUniqueID]['colors'] = colors
         self.battleResultsBusy.release()
+
+    def reset(self):
+        self.startDate = self.getWorkDate()
+        self.battles = []
+        self.save()
+        self.updateMessage()
 
     def mainLoop(self):
         while True:
@@ -405,9 +417,7 @@ old_nlv_onClickAction = NotificationListView.onClickAction
 
 def new_onClickAction(self, typeID, entityID, action):
     if action == 'wotstatReset':
-        stat.battles = []
-        stat.save()
-        stat.updateMessage()
+        stat.reset()
     else:
         old_nlv_onClickAction(self, typeID, entityID, action)
 
