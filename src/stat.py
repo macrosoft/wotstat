@@ -40,7 +40,8 @@ class SessionStatistic(object):
         self.loaded = False
         self.battleStats = {}
         self.cache = {}
-        self.colors = {}
+        self.gradient = {}
+        self.palette = {}
         self.config = {}
         self.expectedValues = {}
         self.values = {}
@@ -180,11 +181,13 @@ class SessionStatistic(object):
         self.save()
         self.updateMessage()
         battleStat = {}
-        colors = {}
-        self.calcWN8([battle], battleStat, colors)
+        gradient = {}
+        palette = {}
+        self.calcWN8([battle], battleStat, gradient, palette)
         self.battleStats[arenaUniqueID] = {}
         self.battleStats[arenaUniqueID]['values'] = battleStat
-        self.battleStats[arenaUniqueID]['colors'] = colors
+        self.battleStats[arenaUniqueID]['gradient'] = gradient
+        self.battleStats[arenaUniqueID]['palette'] = palette
         self.battleResultsBusy.release()
 
     def reset(self):
@@ -200,30 +203,41 @@ class SessionStatistic(object):
             self.battleResultsBusy.acquire()
             BigWorld.player().battleResultsCache.get(arenaUniqueID, self.battleResultsCallback)
 
-    def refreshColorMacros(self, values, colors):
+    def refreshColorMacros(self, values, gradient, palette):
         if values['battlesCount'] == 0:
             for key in values.keys():
-                colors[key] = '#FFFFFF'
+                gradient[key] = '#FFFFFF'
+                palette[key] = '#FFFFFF'
             return
         for key in values.keys():
-            if self.config['colors'].has_key(key):
-                clrs = self.config['colors'][key]
-                if values[key] <= clrs[0]['value']:
-                    colors[key] = clrs[0]['color']
-                elif values[key] >= clrs[-1]['value']:
-                    colors[key] = clrs[-1]['color']
+            if self.config['gradient'].has_key(key):
+                colors = self.config['gradient'][key]
+                if values[key] <= colors[0]['value']:
+                    gradient[key] = colors[0]['color']
+                elif values[key] >= colors[-1]['value']:
+                    gradient[key] = colors[-1]['color']
                 else:
-                    sVal = clrs[0]['value']
-                    eVal = clrs[1]['value']
+                    sVal = colors[0]['value']
+                    eVal = colors[1]['value']
                     i = 1
                     while eVal < values[key]:
-                        sVal = clrs[i]['value']
+                        sVal = colors[i]['value']
                         i += 1
-                        eVal = clrs[i]['value']
+                        eVal = colors[i]['value']
                     val = float(values[key] - sVal)/(eVal - sVal)
-                    colors[key] = gradColor(clrs[i - 1]['color'], clrs[i]['color'], val)
+                    gradient[key] = gradColor(colors[i - 1]['color'], colors[i]['color'], val)
             else:
-                colors[key] = '#FFFFFF'
+                gradient[key] = '#FFFFFF'
+            if self.config['palette'].has_key(key):
+                colors = self.config['palette'][key]
+                palette[key] = colors[-1]['color']
+                for item in colors:
+                    if item['value'] <= values[key]:
+                        palette[key] = item['color']
+                    else:
+                        break
+            else:
+                palette[key] = '#FFFFFF'
 
     def calcExpected(self, newIdNum):
         v = vehiclesWG.getVehicleType(newIdNum)
@@ -255,7 +269,7 @@ class SessionStatistic(object):
             tierExpected[key] /= tierExpectedCount
         self.expectedValues[newIdNum] = tierExpected.copy()
 
-    def calcWN8(self, battles, values, colors):
+    def calcWN8(self, battles, values, gradient, palette):
         values['battlesCount'] = len(battles)
         totalTier = 0
         totalBattleTier = 0
@@ -347,7 +361,7 @@ class SessionStatistic(object):
             0.000000028057) - 0.00004536) + 0.06563) - 0.01, 100), 0))
         values['WN8'] = int(values['WN8'])
         values['avgDamage'] = int(values['avgDamage'])
-        self.refreshColorMacros(values, colors)
+        self.refreshColorMacros(values, gradient, palette)
 
     def num2Str(self, val):
         sVal = format(val, ',.2f') if type(val) is float \
@@ -356,20 +370,23 @@ class SessionStatistic(object):
         return sVal
 
     def updateMessage(self):
-        self.calcWN8(self.battles, self.values, self.colors)
+        self.calcWN8(self.battles, self.values, self.gradient, self.palette)
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
             msg = msg.replace('{{%s}}' % key, self.num2Str(self.values[key]))
-            msg = msg.replace('{{c:%s}}' % key, self.colors[key])
+            msg = msg.replace('{{g:%s}}' % key, self.gradient[key])
+            msg = msg.replace('{{c:%s}}' % key, self.palette[key])
         self.message = msg
 
     def replaceBattleResultMessage(self, message, arenaUniqueID):
         battleStatText = self.config.get('battleStatText', '')
         values = self.battleStats[arenaUniqueID]['values']
-        colors = self.battleStats[arenaUniqueID]['colors']
+        gradient = self.battleStats[arenaUniqueID]['gradient']
+        palette = self.battleStats[arenaUniqueID]['palette']
         for key in values.keys():
             battleStatText = battleStatText.replace('{{%s}}' % key, self.num2Str(values[key]))
-            battleStatText = battleStatText.replace('{{c:%s}}' % key, colors[key])
+            battleStatText = battleStatText.replace('{{g:%s}}' % key, gradient[key])
+            battleStatText = battleStatText.replace('{{c:%s}}' % key, palette[key])
         return message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
 
     def filterNotificationList(self, item):

@@ -1,6 +1,6 @@
 {
     "showStatForBattle": true,
-    "battleStatText": "WN8: <font color='{{c:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font>",
+    "battleStatText": "WN8: <font color='{{g:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font>",
     "hideMessagePatterns": [
         "Рекомендуем выполнить привязку вашего аккаунта к телефону",
         "Рекомендуем сменить пароль",
@@ -19,16 +19,16 @@
     "battleEndedMessageDraw": "<font color='#FE7903'>Бой {{map}} - {{vehicle}} завершился ничьей.</font>",
     "battleEndedMessageWin": "<font color='#60FF00'>Бой {{map}} - {{vehicle}} завершился победой!</font>",
     "template": [
-        "<font size='12'><textformat leading='-4' tabstops='[50,130]'><font color='#FFCC66'>WN8:</font><tab><font color='{{c:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font><tab><font color='#FFCC66'><b>{{avgTier}} (+{{avgBattleTierDiff}}) </b>ур</font></textformat>",
-        "<textformat leading='-4' tabstops='[50,130,190]'><font color='#FFCC66'>Победы:</font><tab><font color='{{c:rWIN}}'><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
-        "<font color='#FFCC66'>Урон:</font><tab><font color='{{c:rDAMAGE}}'><b>{{totalDmg}}<tab>{{avgDamage}}<tab>{{rDAMAGE}}</b></font>",
-        "<font color='#FFCC66'>Фраги:</font><tab><font color='{{c:rFRAG}}'><b>{{totalFrag}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
-        "<font color='#FFCC66'>Засвет:</font><tab><font color='{{c:rSPOT}}'><b>{{totalSpot}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
-        "<font color='#FFCC66'>Защита:</font><tab><font color='{{c:rDEF}}'><b>{{totalDef}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
-        "<font color='#FFCC66'>Опыт:</font><tab><font color='{{c:avgXP}}'><b>{{totalXP}}<tab>{{avgOriginalXP}}</b> ({{avgXP}})</font>",
+        "<font size='12'><textformat leading='-4' tabstops='[50,130]'><font color='#FFCC66'>WN8:</font><tab><font color='{{g:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font><tab><font color='#FFCC66'><b>{{avgTier}} (+{{avgBattleTierDiff}}) </b>ур</font></textformat>",
+        "<textformat leading='-4' tabstops='[50,130,190]'><font color='#FFCC66'>Победы:</font><tab><font color='{{g:rWIN}}'><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
+        "<font color='#FFCC66'>Урон:</font><tab><font color='{{g:rDAMAGE}}'><b>{{totalDmg}}<tab>{{avgDamage}}<tab>{{rDAMAGE}}</b></font>",
+        "<font color='#FFCC66'>Фраги:</font><tab><font color='{{g:rFRAG}}'><b>{{totalFrag}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
+        "<font color='#FFCC66'>Засвет:</font><tab><font color='{{g:rSPOT}}'><b>{{totalSpot}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
+        "<font color='#FFCC66'>Защита:</font><tab><font color='{{g:rDEF}}'><b>{{totalDef}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
+        "<font color='#FFCC66'>Опыт:</font><tab><font color='{{g:avgXP}}'><b>{{totalXP}}<tab>{{avgOriginalXP}}</b></font>",
         "<font color='#FFCC66'>Кредиты:</font><tab><font color='{{c:credits}}'><b>{{credits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'><tab>{{avgCredits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'></b></font></textformat><font>"
     ],
-    "colors": {
+    "gradient": {
         "WN8": [
             {"value": 155, "color": "#FE0E00"},
             {"value": 530, "color": "#FE7903"},
@@ -84,9 +84,12 @@
             {"value": 500, "color": "#60FF00"},
             {"value": 800, "color": "#02C9B3"},
             {"value": 1000, "color": "#D042F3"}
-        ],
+        ]
+    },
+    "palette" : {
         "credits": [
             {"value": -1, "color": "#FE0E00"},
+            {"value": 0, "color": "#FFFFFF"},
             {"value": 1, "color": "#60FF00"}
         ]
     }
