@@ -116,7 +116,7 @@ class SessionStatistic(object):
         message = {
             'typeID': 1,
             'message': {
-                'bgIcon': '',
+                'bgIcon':  self.config.get('bgIcon', ''),
                 'defaultIcon': '',
                 'savedID': 0,
                 'timestamp': -1,
