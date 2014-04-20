@@ -231,8 +231,8 @@ class SessionStatistic(object):
             if self.config['palette'].has_key(key):
                 colors = self.config['palette'][key]
                 palette[key] = colors[-1]['color']
-                for item in colors:
-                    if item['value'] <= values[key]:
+                for item in reversed(colors):
+                    if values[key] <= item['value']:
                         palette[key] = item['color']
                     else:
                         break
