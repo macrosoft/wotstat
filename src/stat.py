@@ -8,6 +8,7 @@ import json
 import math
 import os
 import re
+import ResMgr
 from Account import Account
 from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
@@ -18,7 +19,6 @@ from messenger import MessengerEntry
 from messenger.formatters.service_channel import BattleResultsFormatter
 import threading
 from Queue import Queue
-from xml.dom import minidom
 from debug_utils import *
 
 def hexToRgb(hex):
@@ -62,13 +62,15 @@ class SessionStatistic(object):
         self.loaded = True
         self.battles = []
         self.playerName = BigWorld.player().name
-        path_items = minidom.parse(os.path.join(os.getcwd(), 'paths.xml')).getElementsByTagName('Path')
-        for root in path_items:
-            path = os.path.join(os.getcwd(), root.childNodes[0].data)
+        res = ResMgr.openSection('../paths.xml')
+        sb = res['Paths']
+        vals = sb.values()[0:2]
+        for vl in vals:
+            path = vl.asString + '/scripts/client/mods/'
             if os.path.isdir(path):
-                configFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_config.json')
-                expectedValuesPath = os.path.join(path, 'scripts', 'client', 'mods', 'expected_tank_values.json')
-                self.statCacheFilePath = os.path.join(path, 'scripts', 'client', 'mods', 'stat_cache.json')
+                configFilePath = path + 'stat_config.json'
+                expectedValuesPath = path + 'expected_tank_values.json'
+                self.statCacheFilePath = path + 'stat_cache.json'
                 if os.path.isfile(configFilePath):
                     break
         with codecs.open(configFilePath, 'r', 'utf-8-sig') as configFileJson:
