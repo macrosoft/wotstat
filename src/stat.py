@@ -38,6 +38,7 @@ class SessionStatistic(object):
         self.cacheVersion = 2
         self.queue = Queue()
         self.loaded = False
+        self.configIsValid = True
         self.battleStats = {}
         self.cache = {}
         self.gradient = {}
@@ -74,7 +75,12 @@ class SessionStatistic(object):
                 if os.path.isfile(configFilePath):
                     break
         with codecs.open(configFilePath, 'r', 'utf-8-sig') as configFileJson:
-            self.config = json.load(configFileJson)
+            try:
+                self.config = json.load(configFileJson)
+            except ValueError:
+                print 'load stat_config.json has failed'
+                self.config = {}
+                self.configIsValid = False
         with open(expectedValuesPath) as origExpectedValuesJson:
             origExpectedValues = json.load(origExpectedValuesJson)
             for tankValues in origExpectedValues['data']:
@@ -212,8 +218,8 @@ class SessionStatistic(object):
                 palette[key] = '#FFFFFF'
             return
         for key in values.keys():
-            if self.config['gradient'].has_key(key):
-                colors = self.config['gradient'][key]
+            if self.config.get('gradient', {}).has_key(key):
+                colors = self.get('gradient', {})[key]
                 if values[key] <= colors[0]['value']:
                     gradient[key] = colors[0]['color']
                 elif values[key] >= colors[-1]['value']:
@@ -230,8 +236,8 @@ class SessionStatistic(object):
                     gradient[key] = gradColor(colors[i - 1]['color'], colors[i]['color'], val)
             else:
                 gradient[key] = '#FFFFFF'
-            if self.config['palette'].has_key(key):
-                colors = self.config['palette'][key]
+            if self.config.get('palette', {}).has_key(key):
+                colors = self.config.get('palette', {})[key]
                 palette[key] = colors[-1]['color']
                 for item in reversed(colors):
                     if values[key] <= item['value']:
@@ -372,6 +378,9 @@ class SessionStatistic(object):
         return sVal
 
     def updateMessage(self):
+        if not self.configIsValid:
+            self.message = 'stat_config.json is not valid'
+            return
         self.calcWN8(self.battles, self.values, self.gradient, self.palette)
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
