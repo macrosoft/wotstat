@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import BigWorld
+import AccountCommands
 import ArenaType
 import codecs
 import datetime
@@ -9,15 +10,16 @@ import math
 import os
 import re
 import ResMgr
+import threading
 from Account import Account
 from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
+from functools import partial
 from gui.shared.utils.requesters import StatsRequester
 from helpers import i18n
 from notification.NotificationListView import NotificationListView
 from messenger import MessengerEntry
 from messenger.formatters.service_channel import BattleResultsFormatter
-import threading
 from Queue import Queue
 from debug_utils import *
 
@@ -52,7 +54,6 @@ class SessionStatistic(object):
         self.startDate = None
         self.battleResultsAvailable = threading.Event()
         self.battleResultsAvailable.clear()
-        self.battleResultsBusy = threading.Lock()
         self.thread = threading.Thread(target=self.mainLoop)
         self.thread.setDaemon(True)
         self.thread.start()
@@ -148,9 +149,17 @@ class SessionStatistic(object):
             })
         return message
 
-    def battleResultsCallback(self, responseCode, value = None, revision = 0):
-        if responseCode < 0 or  value['common']['guiType'] in self.config.get('ignoreBattleType', []):
-            self.battleResultsBusy.release()
+    def addLaterArenaUniqueID(self, arenaUniqueID):
+        self.queue.put(arenaUniqueID)
+
+    def battleResultsCallback(self, arenaUniqueID, responseCode, value = None, revision = 0):
+        if responseCode == AccountCommands.RES_NON_PLAYER or responseCode == AccountCommands.RES_COOLDOWN:
+            addArenaUniqueID = partial(self.addLaterArenaUniqueID, arenaUniqueID)
+            BigWorld.callback(1.0, addArenaUniqueID)
+            return
+        if responseCode < AccountCommands.RES_CACHE:
+            return
+        if value['common']['guiType'] in self.config.get('ignoreBattleType', []):
             return
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
@@ -194,7 +203,6 @@ class SessionStatistic(object):
         self.battleStats[arenaUniqueID]['values'] = battleStat
         self.battleStats[arenaUniqueID]['gradient'] = gradient
         self.battleStats[arenaUniqueID]['palette'] = palette
-        self.battleResultsBusy.release()
 
     def reset(self):
         self.startDate = self.getWorkDate()
@@ -206,8 +214,8 @@ class SessionStatistic(object):
         while True:
             arenaUniqueID = self.queue.get()
             stat.battleResultsAvailable.wait()
-            self.battleResultsBusy.acquire()
-            BigWorld.player().battleResultsCache.get(arenaUniqueID, self.battleResultsCallback)
+            shotBRCallback = partial(self.battleResultsCallback, arenaUniqueID)
+            BigWorld.player().battleResultsCache.get(arenaUniqueID, shotBRCallback)
 
     def refreshColorMacros(self, values, gradient, palette):
         if values['battlesCount'] == 0:
