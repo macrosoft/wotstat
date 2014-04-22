@@ -149,10 +149,8 @@ class SessionStatistic(object):
         return message
 
     def battleResultsCallback(self, responseCode, value = None, revision = 0):
-        if responseCode < 0:
+        if responseCode < 0 or  value['common']['guiType'] in self.config.get('ignoreBattleType', []):
             self.battleResultsBusy.release()
-            return
-        if value['common']['guiType'] in self.config.get('ignoreBattleType', []):
             return
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
