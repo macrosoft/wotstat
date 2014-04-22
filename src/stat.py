@@ -181,7 +181,7 @@ class SessionStatistic(object):
             'battleTier': battleTier,
             'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
         }
-        if self.startDate != stat.getWorkDate():
+        if self.config.get('dailyAutoReset', True) and self.startDate != stat.getWorkDate():
             self.reset()
         self.battles.append(battle)
         self.save()
