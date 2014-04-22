@@ -217,7 +217,7 @@ class SessionStatistic(object):
             return
         for key in values.keys():
             if self.config.get('gradient', {}).has_key(key):
-                colors = self.get('gradient', {})[key]
+                colors = self.config.get('gradient', {})[key]
                 if values[key] <= colors[0]['value']:
                     gradient[key] = colors[0]['color']
                 elif values[key] >= colors[-1]['value']:
