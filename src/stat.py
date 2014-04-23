@@ -37,7 +37,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
-        self.cacheVersion = 2
+        self.cacheVersion = 3
         self.queue = Queue()
         self.loaded = False
         self.configIsValid = True
@@ -183,6 +183,9 @@ class SessionStatistic(object):
             'spot': value['personal']['spotted'],
             'def': value['personal']['droppedCapturePoints'],
             'cap': value['personal']['capturePoints'],
+            'shots': value['personal']['shots'],
+            'hits': value['personal']['directHits'],
+            'pierced': value['personal']['piercings'],
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
             'credits': proceeds,
@@ -288,7 +291,8 @@ class SessionStatistic(object):
         totalTier = 0
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
-            'totalAssist', 'totalXP', 'totalOriginXP', 'credits', 'gold']
+            'totalShots', 'totalHits', 'totalPierced', 'totalAssist', 'totalXP', 'totalOriginXP', \
+            'credits', 'gold']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -302,6 +306,9 @@ class SessionStatistic(object):
             values['totalSpot'] += battle['spot']
             values['totalDef'] += battle['def']
             values['totalCap'] += battle['cap']
+            values['totalShots'] += battle['shots']
+            values['totalHits'] += battle['hits']
+            values['totalPierced'] += battle['pierced']
             values['totalAssist'] += battle['assist']
             values['totalXP'] += battle['xp']
             values['totalOriginXP'] += battle['originalXP']
@@ -324,6 +331,8 @@ class SessionStatistic(object):
             values['avgSpot'] = float(values['totalSpot'])/values['battlesCount']
             values['avgDef'] = float(values['totalDef'])/values['battlesCount']
             values['avgCap'] = float(values['totalCap'])/values['battlesCount']
+            values['hitsRate'] = float(values['totalHits'])/max(1, values['totalShots'])*100
+            values['effHitsRate'] = float(values['totalPierced'])/max(1, values['totalShots'])*100
             values['avgAssist'] = int(values['totalAssist'])/values['battlesCount']
             values['avgXP'] = int(values['totalXP']/values['battlesCount'])
             values['avgOriginalXP'] = int(values['totalOriginXP']/values['battlesCount'])
