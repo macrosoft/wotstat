@@ -157,7 +157,7 @@ class SessionStatistic(object):
             addArenaUniqueID = partial(self.addLaterArenaUniqueID, arenaUniqueID)
             BigWorld.callback(1.0, addArenaUniqueID)
             return
-        if responseCode < AccountCommands.RES_CACHE:
+        if responseCode < 0:
             return
         if value['common']['guiType'] in self.config.get('ignoreBattleType', []):
             return
