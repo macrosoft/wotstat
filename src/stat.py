@@ -70,18 +70,12 @@ class SessionStatistic(object):
         for vl in vals:
             path = vl.asString + '/scripts/client/mods/'
             if os.path.isdir(path):
-                configFilePath = path + 'stat_config.json'
-                expectedValuesPath = path + 'expected_tank_values.json'
+                self.configFilePath = path + 'stat_config.json'
                 self.statCacheFilePath = path + 'stat_cache.json'
-                if os.path.isfile(configFilePath):
+                expectedValuesPath = path + 'expected_tank_values.json'
+                if os.path.isfile(self.configFilePath):
                     break
-        with codecs.open(configFilePath, 'r', 'utf-8-sig') as configFileJson:
-            try:
-                self.config = json.load(configFileJson)
-            except ValueError:
-                print 'load stat_config.json has failed'
-                self.config = {}
-                self.configIsValid = False
+        self.readConfig()
         with open(expectedValuesPath) as origExpectedValuesJson:
             origExpectedValues = json.load(origExpectedValuesJson)
             for tankValues in origExpectedValues['data']:
@@ -103,6 +97,16 @@ class SessionStatistic(object):
         if invalidCache:
             self.cache = {}
         self.updateMessage()
+
+    def readConfig(self):
+        with codecs.open(self.configFilePath, 'r', 'utf-8-sig') as configFileJson:
+            try:
+                self.config = json.load(configFileJson)
+                self.configIsValid = True
+            except ValueError:
+                print 'load stat_config.json has failed'
+                self.config = {}
+                self.configIsValid = False
 
     def getWorkDate(self):
         return datetime.date.today().strftime('%Y-%m-%d') \
@@ -453,6 +457,10 @@ Account.onBecomeNonPlayer = new_onBecomeNonPlayer
 old_nlv_populate = NotificationListView._populate
 
 def new_nlv_populate(self):
+    if stat.config.get('onlineReloadConfig', False):
+        stat.readConfig()
+        stat.updateMessage()
+        stat.config['onlineReloadConfig'] = True
     old_nlv_populate(self)
     self.as_appendMessageS(stat.createMessage())
 
