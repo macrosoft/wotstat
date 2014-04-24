@@ -335,8 +335,8 @@ class SessionStatistic(object):
             values['avgSpot'] = float(values['totalSpot'])/values['battlesCount']
             values['avgDef'] = float(values['totalDef'])/values['battlesCount']
             values['avgCap'] = float(values['totalCap'])/values['battlesCount']
-            values['hitsRate'] = float(values['totalHits'])/max(1, values['totalShots'])*100
-            values['effHitsRate'] = float(values['totalPierced'])/max(1, values['totalShots'])*100
+            values['avgHitsRate'] = float(values['totalHits'])/max(1, values['totalShots'])*100
+            values['avgEffHitsRate'] = float(values['totalPierced'])/max(1, values['totalHits'])*100
             values['avgAssist'] = int(values['totalAssist'])/values['battlesCount']
             values['avgXP'] = int(values['totalXP']/values['battlesCount'])
             values['avgOriginalXP'] = int(values['totalOriginXP']/values['battlesCount'])
@@ -363,8 +363,9 @@ class SessionStatistic(object):
                 (values['EFF']*(0.00000000000000003388*values['EFF'] - 0.0000000000002469) + \
                 0.00000000069335) - 0.00000095342) + 0.0006656) -0.1485) - 0.85, 100), 0))
         else:
-            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgAssist', \
-                'avgXP', 'avgOriginalXP', 'avgCredits', 'avgTier', 'avgBattleTier', 'WN6', 'XWN6', 'EFF', 'XEFF']:
+            for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgHitsRate', \
+                'avgEffHitsRate', 'avgAssist', 'avgXP', 'avgOriginalXP', 'avgCredits', 'avgTier', 'avgBattleTier',\
+                'WN6', 'XWN6', 'EFF', 'XEFF']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
