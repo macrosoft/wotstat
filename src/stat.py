@@ -67,7 +67,7 @@ class SessionStatistic(object):
         self.playerName = BigWorld.player().name
         res = ResMgr.openSection('../paths.xml')
         sb = res['Paths']
-        vals = sb.values()[0:2]
+        vals = sb.values()
         for vl in vals:
             path = vl.asString + '/scripts/client/mods/'
             if os.path.isdir(path):
