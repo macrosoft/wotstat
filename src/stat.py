@@ -176,8 +176,7 @@ class SessionStatistic(object):
             pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
             battleTier = max(battleTier, pvt.level)
             proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
-                       value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0] -\
-                       value['personal']['creditsContributionOut']
+                       value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
         battle = {
             'idNum': vehicleCompDesc,
             'name': vt.name,
