@@ -37,7 +37,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
-        self.cacheVersion = 3
+        self.cacheVersion = 4
         self.queue = Queue()
         self.loaded = False
         self.configIsValid = True
@@ -193,6 +193,9 @@ class SessionStatistic(object):
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
             'credits': proceeds,
+            'autoRepair': value['personal']['autoRepairCost'],
+            'autoEquip': value['personal']['autoEquipCost'][0],
+            'autoLoad': value['personal']['autoLoadCost'][0],
             'gold': value['personal']['gold'] - value['personal']['autoEquipCost'][1] - value['personal']['autoLoadCost'][1],
             'battleTier': battleTier,
             'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
@@ -298,7 +301,7 @@ class SessionStatistic(object):
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
             'totalShots', 'totalHits', 'totalPierced', 'totalAssist', 'totalXP', 'totalOriginXP', \
-            'credits', 'gold']
+            'totalAutoRepair', 'totalAutoEquip', 'totalAutoLoad', 'credits', 'gold']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -318,6 +321,9 @@ class SessionStatistic(object):
             values['totalAssist'] += battle['assist']
             values['totalXP'] += battle['xp']
             values['totalOriginXP'] += battle['originalXP']
+            values['totalAutoRepair'] += battle['repair']
+            values['totalAutoEquip'] += battle['equip']
+            values['totalAutoLoad'] += battle['load']
             values['credits'] += battle['credits']
             values['gold'] += battle['gold']
             totalTier += battle['tier']
@@ -412,7 +418,7 @@ class SessionStatistic(object):
         self.message = msg
 
     def replaceBattleResultMessage(self, message, arenaUniqueID):
-        battleStatText = self.config.get('battleStatText', '')
+        battleStatText = '\n'.join(self.config.get('battleStatText',''))
         values = self.battleStats[arenaUniqueID]['values']
         gradient = self.battleStats[arenaUniqueID]['gradient']
         palette = self.battleStats[arenaUniqueID]['palette']

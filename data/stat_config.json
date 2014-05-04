@@ -1,6 +1,8 @@
 {
     "showStatForBattle": true,
-    "battleStatText": "WN8: <font color='{{g:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font>",
+    "battleStatText": [
+        "WN8: <font color='{{g:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font>"
+    ],
     "hideMessagePatterns": [
         "Рекомендуем выполнить привязку вашего аккаунта к телефону",
         "Рекомендуем сменить пароль",
