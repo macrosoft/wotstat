@@ -37,7 +37,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
-        self.cacheVersion = 3
+        self.cacheVersion = 4
         self.queue = Queue()
         self.loaded = False
         self.configIsValid = True
@@ -170,13 +170,18 @@ class SessionStatistic(object):
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
         win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
         battleTier = 1
+        place = 1
         arenaUniqueID = value['arenaUniqueID']
-        for key in value['vehicles'].keys():
-            pTypeCompDescr = value['vehicles'][key]['typeCompDescr']
+        vehicles = value['vehicles']
+        for key in vehicles.keys():
+            pTypeCompDescr = vehicles[key]['typeCompDescr']
             pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
             battleTier = max(battleTier, pvt.level)
-            proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
-                       value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
+            if value['personal']['team'] == vehicles[key]['team'] and \
+                value['personal']['originalXP'] < vehicles[key]['xp']:
+                place += 1
+        proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
+                   value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
         battle = {
             'idNum': vehicleCompDesc,
             'name': vt.name,
@@ -192,6 +197,7 @@ class SessionStatistic(object):
             'pierced': value['personal']['piercings'],
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
+            'place': place,
             'credits': proceeds,
             'gold': value['personal']['gold'] - value['personal']['autoEquipCost'][1] - value['personal']['autoLoadCost'][1],
             'battleTier': battleTier,
