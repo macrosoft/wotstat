@@ -12,7 +12,7 @@
         "Высадка танкиста в Казарму выполнена успешно",
         "Пересадка танкиста выполнена успешно"
     ],
-    "onlineReloadConfig": false,
+    "onlineReloadConfig": true,
     "ignoreBattleType": [2, 4],
     "showResetButton": false,
     "textResetButton": "Сброс",

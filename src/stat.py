@@ -37,7 +37,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
-        self.cacheVersion = 4
+        self.cacheVersion = 3
         self.queue = Queue()
         self.loaded = False
         self.configIsValid = True
@@ -193,12 +193,14 @@ class SessionStatistic(object):
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
             'credits': proceeds,
-            'autoRepair': value['personal']['autoRepairCost'],
-            'autoEquip': value['personal']['autoEquipCost'][0],
-            'autoLoad': value['personal']['autoLoadCost'][0],
             'gold': value['personal']['gold'] - value['personal']['autoEquipCost'][1] - value['personal']['autoLoadCost'][1],
             'battleTier': battleTier,
             'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
+        }
+        extended = {
+            'autoRepair': value['personal']['autoRepairCost'],
+            'autoEquip': value['personal']['autoEquipCost'][0],
+            'autoLoad': value['personal']['autoLoadCost'][0]
         }
         if self.config.get('dailyAutoReset', True) and self.startDate != stat.getWorkDate():
             self.reset()
@@ -209,8 +211,10 @@ class SessionStatistic(object):
         gradient = {}
         palette = {}
         self.calcWN8([battle], battleStat, gradient, palette)
+        self.refreshColorMacros(extended, gradient, palette)
         self.battleStats[arenaUniqueID] = {}
         self.battleStats[arenaUniqueID]['values'] = battleStat
+        self.battleStats[arenaUniqueID]['extendedValues'] = extended
         self.battleStats[arenaUniqueID]['gradient'] = gradient
         self.battleStats[arenaUniqueID]['palette'] = palette
         self.battleResultsBusy.release()
@@ -230,7 +234,7 @@ class SessionStatistic(object):
             BigWorld.player().battleResultsCache.get(arenaUniqueID, shotBRCallback)
 
     def refreshColorMacros(self, values, gradient, palette):
-        if values['battlesCount'] == 0:
+        if values.get('battlesCount', 1) == 0:
             for key in values.keys():
                 gradient[key] = '#FFFFFF'
                 palette[key] = '#FFFFFF'
@@ -301,7 +305,7 @@ class SessionStatistic(object):
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
             'totalShots', 'totalHits', 'totalPierced', 'totalAssist', 'totalXP', 'totalOriginXP', \
-            'totalAutoRepair', 'totalAutoEquip', 'totalAutoLoad', 'credits', 'gold']
+            'credits', 'gold']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -321,9 +325,6 @@ class SessionStatistic(object):
             values['totalAssist'] += battle['assist']
             values['totalXP'] += battle['xp']
             values['totalOriginXP'] += battle['originalXP']
-            values['totalAutoRepair'] += battle['autoRepair']
-            values['totalAutoEquip'] += battle['autoEquip']
-            values['totalAutoLoad'] += battle['autoLoad']
             values['credits'] += battle['credits']
             values['gold'] += battle['gold']
             totalTier += battle['tier']
@@ -420,10 +421,15 @@ class SessionStatistic(object):
     def replaceBattleResultMessage(self, message, arenaUniqueID):
         battleStatText = '\n'.join(self.config.get('battleStatText',''))
         values = self.battleStats[arenaUniqueID]['values']
+        extendedValues = self.battleStats[arenaUniqueID]['extendedValues']
         gradient = self.battleStats[arenaUniqueID]['gradient']
         palette = self.battleStats[arenaUniqueID]['palette']
         for key in values.keys():
             battleStatText = battleStatText.replace('{{%s}}' % key, self.num2Str(values[key]))
+            battleStatText = battleStatText.replace('{{g:%s}}' % key, gradient[key])
+            battleStatText = battleStatText.replace('{{c:%s}}' % key, palette[key])
+        for key in extendedValues.keys():
+            battleStatText = battleStatText.replace('{{%s}}' % key, self.num2Str(extendedValues[key]))
             battleStatText = battleStatText.replace('{{g:%s}}' % key, gradient[key])
             battleStatText = battleStatText.replace('{{c:%s}}' % key, palette[key])
         return message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
