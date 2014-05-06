@@ -12,7 +12,7 @@
         "Высадка танкиста в Казарму выполнена успешно",
         "Пересадка танкиста выполнена успешно"
     ],
-    "onlineReloadConfig": true,
+    "onlineReloadConfig": false,
     "ignoreBattleType": [2, 4],
     "showResetButton": false,
     "textResetButton": "Сброс",
@@ -29,7 +29,7 @@
         "<font color='#FFCC66'>Фраги:</font><tab><font color='{{g:rFRAG}}'><b>{{totalFrag}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
         "<font color='#FFCC66'>Засвет:</font><tab><font color='{{g:rSPOT}}'><b>{{totalSpot}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
         "<font color='#FFCC66'>Защита:</font><tab><font color='{{g:rDEF}}'><b>{{totalDef}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
-        "<font color='#FFCC66'>Опыт:</font><tab><font color='{{g:avgXP}}'><b>{{totalXP}}<tab>{{avgOriginalXP}}</b></font>",
+        "<font color='#FFCC66'>Опыт:</font><tab><font color='{{g:avgPlace}}'><b>{{totalXP}}<tab>{{avgOriginalXP}}<tab>{{avgPlace}}</b></font>",
         "<font color='#FFCC66'>Кредиты:</font><tab><font color='{{c:credits}}'><b>{{credits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'><tab>{{avgCredits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'></b></font></textformat><font>"
     ],
     "gradient": {
@@ -81,13 +81,13 @@
             {"value": 1.22, "color": "#02C9B3"},
             {"value": 1.57, "color": "#D042F3"}
         ],
-        "avgXP": [
-            {"value": 0, "color": "#FE0E00"},
-            {"value": 120, "color": "#FE7903"},
-            {"value": 280, "color": "#F8F400"},
-            {"value": 500, "color": "#60FF00"},
-            {"value": 800, "color": "#02C9B3"},
-            {"value": 1000, "color": "#D042F3"}
+        "avgPlace": [
+            {"value": 1, "color": "#D042F3"},
+            {"value": 3, "color": "#02C9B3"},
+            {"value": 5, "color": "#60FF00"},
+            {"value": 7, "color": "#F8F400"},
+            {"value": 10, "color": "#FE7903"},
+            {"value": 15, "color": "#FE0E00"}
         ]
     },
     "palette" : {

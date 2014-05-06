@@ -308,6 +308,7 @@ class SessionStatistic(object):
     def calcWN8(self, battles, values, gradient, palette):
         values['battlesCount'] = len(battles)
         totalTier = 0
+        totalPlace = 0
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
             'totalShots', 'totalHits', 'totalPierced', 'totalAssist', 'totalXP', 'totalOriginXP', \
@@ -335,6 +336,7 @@ class SessionStatistic(object):
             values['gold'] += battle['gold']
             totalTier += battle['tier']
             totalBattleTier += battle['battleTier']
+            totalPlace += battle['place']
             idNum = battle['idNum']
             if not self.expectedValues.has_key(idNum):
                 self.calcExpected(idNum)
@@ -358,6 +360,7 @@ class SessionStatistic(object):
             values['avgCredits'] = int(values['credits']/values['battlesCount'])
             values['avgTier'] = round(float(totalTier)/values['battlesCount'], 1)
             values['avgBattleTier'] = round(float(totalBattleTier)/values['battlesCount'], 1)
+            values['avgPlace'] = round(float(totalPlace)/values['battlesCount'], 1)
             for key in expKeys:
                 values[key] = expValues['total_' + key]/values['battlesCount']
             values['WN6'] = max(0, int((1240 - 1040/(min(values['avgTier'], 6))**0.164)*values['avgFrag'] + \
@@ -380,7 +383,7 @@ class SessionStatistic(object):
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgHitsRate', \
                 'avgEffHitsRate', 'avgAssist', 'avgXP', 'avgOriginalXP', 'avgCredits', 'avgTier', 'avgBattleTier',\
-                'WN6', 'XWN6', 'EFF', 'XEFF']:
+                'avgPlace', 'WN6', 'XWN6', 'EFF', 'XEFF']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
