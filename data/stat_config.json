@@ -1,5 +1,15 @@
 {
     "showStatForBattle": true,
+    "battleStatPatterns": [
+        {
+            "pattern": "(Получено кредитов: )<font color='#C5CFCF'>[\\d ]+",
+            "repl": "\\1<font color='{{c:credits}}'>{{credits}}"
+        },
+        {
+            "pattern": "(Получено опыта: )<font color='#C8C8B5'>[\\d ]+",
+            "repl": "\\1<font color='{{g:avgPlace}}'>{{totalXP}}"
+        }
+    ],
     "battleStatText": [
         "WN8: <font color='{{g:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font>"
     ],

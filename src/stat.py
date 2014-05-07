@@ -428,16 +428,25 @@ class SessionStatistic(object):
         self.message = msg
 
     def replaceBattleResultMessage(self, message, arenaUniqueID):
+        message = unicode(message, 'utf-8')
+        for pattern in self.config.get('battleStatPatterns',[]):
+            message = re.sub(pattern.get('pattern',''), pattern.get('repl',''), message)
         battleStatText = '\n'.join(self.config.get('battleStatText',''))
         values = self.battleStats[arenaUniqueID]['values']
         extendedValues = self.battleStats[arenaUniqueID]['extendedValues']
         gradient = self.battleStats[arenaUniqueID]['gradient']
         palette = self.battleStats[arenaUniqueID]['palette']
         for key in values.keys():
+            message = message.replace('{{%s}}' % key, self.num2Str(values[key]))
+            message = message.replace('{{g:%s}}' % key, gradient[key])
+            message = message.replace('{{c:%s}}' % key, palette[key])
             battleStatText = battleStatText.replace('{{%s}}' % key, self.num2Str(values[key]))
             battleStatText = battleStatText.replace('{{g:%s}}' % key, gradient[key])
             battleStatText = battleStatText.replace('{{c:%s}}' % key, palette[key])
         for key in extendedValues.keys():
+            message = message.replace('{{%s}}' % key, self.num2Str(extendedValues[key]))
+            message = message.replace('{{g:%s}}' % key, gradient[key])
+            message = message.replace('{{c:%s}}' % key, palette[key])
             battleStatText = battleStatText.replace('{{%s}}' % key, self.num2Str(extendedValues[key]))
             battleStatText = battleStatText.replace('{{g:%s}}' % key, gradient[key])
             battleStatText = battleStatText.replace('{{c:%s}}' % key, palette[key])
