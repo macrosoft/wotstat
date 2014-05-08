@@ -49,6 +49,7 @@ class SessionStatistic(object):
         self.expectedValues = {}
         self.values = {}
         self.battles = []
+        self.battleStatPatterns = []
         self.message = ''
         self.playerName = ''
         self.startDate = None
@@ -77,6 +78,16 @@ class SessionStatistic(object):
                 if os.path.isfile(self.configFilePath):
                     break
         self.readConfig()
+        for pattern in self.config.get('battleStatPatterns',[]):
+            try:
+                compiled = re.compile(pattern.get('pattern',''))
+                self.battleStatPatterns.append({
+                    'pattern': compiled,
+                    'repl': pattern.get('repl','')
+                })
+            except:
+                print "[wotstat] Invalid pattern " + pattern.get('pattern','')
+                continue
         with open(expectedValuesPath) as origExpectedValuesJson:
             origExpectedValues = json.load(origExpectedValuesJson)
             for tankValues in origExpectedValues['data']:
@@ -104,8 +115,8 @@ class SessionStatistic(object):
             try:
                 self.config = json.load(configFileJson)
                 self.configIsValid = True
-            except ValueError:
-                print 'load stat_config.json has failed'
+            except:
+                print '[wotstat] load stat_config.json has failed'
                 self.config = {}
                 self.configIsValid = False
 
@@ -429,7 +440,7 @@ class SessionStatistic(object):
 
     def replaceBattleResultMessage(self, message, arenaUniqueID):
         message = unicode(message, 'utf-8')
-        for pattern in self.config.get('battleStatPatterns',[]):
+        for pattern in self.battleStatPatterns:
             message = re.sub(pattern.get('pattern',''), pattern.get('repl',''), message)
         battleStatText = '\n'.join(self.config.get('battleStatText',''))
         values = self.battleStats[arenaUniqueID]['values']
