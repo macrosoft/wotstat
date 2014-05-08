@@ -538,7 +538,7 @@ def new_brf_format(self, message, *args):
             battleEndedMessage = battleEndedMessage.encode('utf-8')
             vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
             vt = vehiclesWG.getVehicleType(vehicleCompDesc)
-            battleEndedMessage = battleEndedMessage.replace('{{vehicle}}', vt.shortUserString)
+            battleEndedMessage = battleEndedMessage.replace('{{vehicle}}', vt.userString)
             arenaTypeID = message.data.get('arenaTypeID', 0)
             arenaType = ArenaType.g_cache[arenaTypeID]
             arenaName = i18n.makeString(arenaType.name)
