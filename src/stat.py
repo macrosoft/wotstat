@@ -320,6 +320,7 @@ class SessionStatistic(object):
         values['battlesCount'] = len(battles)
         totalTier = 0
         totalPlace = 0
+        places = []
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
             'totalShots', 'totalHits', 'totalPierced', 'totalAssist', 'totalXP', 'totalOriginXP', \
@@ -348,6 +349,7 @@ class SessionStatistic(object):
             totalTier += battle['tier']
             totalBattleTier += battle['battleTier']
             totalPlace += battle['place']
+            places.append(battle['place'])
             idNum = battle['idNum']
             if not self.expectedValues.has_key(idNum):
                 self.calcExpected(idNum)
@@ -369,9 +371,12 @@ class SessionStatistic(object):
             values['avgXP'] = int(values['totalXP']/values['battlesCount'])
             values['avgOriginalXP'] = int(values['totalOriginXP']/values['battlesCount'])
             values['avgCredits'] = int(values['credits']/values['battlesCount'])
-            values['avgTier'] = round(float(totalTier)/values['battlesCount'], 1)
-            values['avgBattleTier'] = round(float(totalBattleTier)/values['battlesCount'], 1)
-            values['avgPlace'] = round(float(totalPlace)/values['battlesCount'], 1)
+            values['avgTier'] = float(totalTier)/values['battlesCount']
+            values['avgBattleTier'] = float(totalBattleTier)/values['battlesCount']
+            places = sorted(places)
+            length = len(places)
+            values['medPlace'] = (places[length/2] +places[length/2 - 1])/2.0  if not length % 2\
+                else float(places[length/2])
             for key in expKeys:
                 values[key] = expValues['total_' + key]/values['battlesCount']
             values['WN6'] = max(0, int((1240 - 1040/(min(values['avgTier'], 6))**0.164)*values['avgFrag'] + \
@@ -394,7 +399,7 @@ class SessionStatistic(object):
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgHitsRate', \
                 'avgEffHitsRate', 'avgAssist', 'avgXP', 'avgOriginalXP', 'avgCredits', 'avgTier', 'avgBattleTier',\
-                'avgPlace', 'WN6', 'XWN6', 'EFF', 'XEFF']:
+                'medPlace', 'WN6', 'XWN6', 'EFF', 'XEFF']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1

@@ -7,7 +7,7 @@
         },
         {
             "pattern": "(Получено опыта: )<font color='#C8C8B5'>[\\d ]+",
-            "repl": "\\1<font color='{{g:avgPlace}}'>{{totalXP}}"
+            "repl": "\\1<font color='{{g:medPlace}}'>{{totalXP}}"
         }
     ],
     "battleStatText": [
@@ -39,7 +39,7 @@
         "<font color='#FFCC66'>Фраги:</font><tab><font color='{{g:rFRAG}}'><b>{{totalFrag}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
         "<font color='#FFCC66'>Засвет:</font><tab><font color='{{g:rSPOT}}'><b>{{totalSpot}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
         "<font color='#FFCC66'>Защита:</font><tab><font color='{{g:rDEF}}'><b>{{totalDef}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
-        "<font color='#FFCC66'>Опыт:</font><tab><font color='{{g:avgPlace}}'><b>{{totalXP}}<tab>{{avgOriginalXP}}<tab>{{avgPlace}}</b></font>",
+        "<font color='#FFCC66'>Опыт:</font><tab><font color='{{g:medPlace}}'><b>{{totalXP}}<tab>{{avgOriginalXP}}<tab>{{medPlace}}</b></font>",
         "<font color='#FFCC66'>Кредиты:</font><tab><font color='{{c:credits}}'><b>{{credits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'><tab>{{avgCredits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'></b></font></textformat><font>"
     ],
     "gradient": {
@@ -91,7 +91,7 @@
             {"value": 1.22, "color": "#02C9B3"},
             {"value": 1.57, "color": "#D042F3"}
         ],
-        "avgPlace": [
+        "medPlace": [
             {"value": 1, "color": "#D042F3"},
             {"value": 3, "color": "#02C9B3"},
             {"value": 5, "color": "#60FF00"},
