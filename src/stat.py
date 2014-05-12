@@ -452,21 +452,16 @@ class SessionStatistic(object):
         extendedValues = self.battleStats[arenaUniqueID]['extendedValues']
         gradient = self.battleStats[arenaUniqueID]['gradient']
         palette = self.battleStats[arenaUniqueID]['palette']
+        message = message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
         for key in values.keys():
             message = message.replace('{{%s}}' % key, self.num2Str(values[key]))
             message = message.replace('{{g:%s}}' % key, gradient[key])
             message = message.replace('{{c:%s}}' % key, palette[key])
-            battleStatText = battleStatText.replace('{{%s}}' % key, self.num2Str(values[key]))
-            battleStatText = battleStatText.replace('{{g:%s}}' % key, gradient[key])
-            battleStatText = battleStatText.replace('{{c:%s}}' % key, palette[key])
         for key in extendedValues.keys():
             message = message.replace('{{%s}}' % key, self.num2Str(extendedValues[key]))
             message = message.replace('{{g:%s}}' % key, gradient[key])
             message = message.replace('{{c:%s}}' % key, palette[key])
-            battleStatText = battleStatText.replace('{{%s}}' % key, self.num2Str(extendedValues[key]))
-            battleStatText = battleStatText.replace('{{g:%s}}' % key, gradient[key])
-            battleStatText = battleStatText.replace('{{c:%s}}' % key, palette[key])
-        return message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
+        return message
 
     def filterNotificationList(self, item):
         message = item['message'].get('message', '')
@@ -555,6 +550,8 @@ def new_brf_format(self, message, *args):
             vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
             vt = vehiclesWG.getVehicleType(vehicleCompDesc)
             battleEndedMessage = battleEndedMessage.replace('{{vehicle}}', vt.userString)
+            name = vt.name.replace(':', '-')
+            battleEndedMessage = battleEndedMessage.replace('{{name}}', name)
             arenaTypeID = message.data.get('arenaTypeID', 0)
             arenaType = ArenaType.g_cache[arenaTypeID]
             arenaName = i18n.makeString(arenaType.name)
