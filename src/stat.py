@@ -445,6 +445,7 @@ class SessionStatistic(object):
 
     def replaceBattleResultMessage(self, message, arenaUniqueID):
         message = unicode(message, 'utf-8')
+        LOG_NOTE(message)
         for pattern in self.battleStatPatterns:
             message = re.sub(pattern.get('pattern',''), pattern.get('repl',''), message)
         battleStatText = '\n'.join(self.config.get('battleStatText',''))
