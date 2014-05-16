@@ -78,16 +78,6 @@ class SessionStatistic(object):
                 if os.path.isfile(self.configFilePath):
                     break
         self.readConfig()
-        for pattern in self.config.get('battleStatPatterns',[]):
-            try:
-                compiled = re.compile(pattern.get('pattern',''))
-                self.battleStatPatterns.append({
-                    'pattern': compiled,
-                    'repl': pattern.get('repl','')
-                })
-            except:
-                print "[wotstat] Invalid pattern " + pattern.get('pattern','')
-                continue
         with open(expectedValuesPath) as origExpectedValuesJson:
             origExpectedValues = json.load(origExpectedValuesJson)
             for tankValues in origExpectedValues['data']:
@@ -114,6 +104,17 @@ class SessionStatistic(object):
         with codecs.open(self.configFilePath, 'r', 'utf-8-sig') as configFileJson:
             try:
                 self.config = json.load(configFileJson)
+                self.battleStatPatterns = []
+                for pattern in self.config.get('battleStatPatterns',[]):
+                    try:
+                        compiled = re.compile(pattern.get('pattern',''))
+                        self.battleStatPatterns.append({
+                            'pattern': compiled,
+                            'repl': pattern.get('repl','')
+                        })
+                    except:
+                        print "[wotstat] Invalid pattern " + pattern.get('pattern','')
+                        continue
                 self.configIsValid = True
             except:
                 print '[wotstat] load stat_config.json has failed'
@@ -552,7 +553,7 @@ def new_brf_format(self, message, *args):
             vt = vehiclesWG.getVehicleType(vehicleCompDesc)
             battleEndedMessage = battleEndedMessage.replace('{{vehicle}}', vt.userString)
             name = vt.name.replace(':', '-')
-            battleEndedMessage = battleEndedMessage.replace('{{name}}', name)
+            battleEndedMessage = battleEndedMessage.replace('{{vehicle-name}}', name)
             arenaTypeID = message.data.get('arenaTypeID', 0)
             arenaType = ArenaType.g_cache[arenaTypeID]
             arenaName = i18n.makeString(arenaType.name)
