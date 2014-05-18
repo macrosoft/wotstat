@@ -432,6 +432,16 @@ class SessionStatistic(object):
         sVal = sVal.replace(',', ' ')
         return sVal
 
+    def num2Strd(self, val):
+        sVal = format(int(round(val)), ',d')
+        sVal = sVal.replace(',', ' ')
+        return sVal
+
+    def num2Str1f(self, val):
+        sVal = format(val, ',.1f')
+        sVal = sVal.replace(',', ' ')
+        return sVal
+
     def updateMessage(self):
         if not self.configIsValid:
             self.message = 'stat_config.json is not valid'
@@ -440,6 +450,8 @@ class SessionStatistic(object):
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
             msg = msg.replace('{{%s}}' % key, self.num2Str(self.values[key]))
+            msg = msg.replace('{{%s:d}}' % key, self.num2Strd(self.values[key]))
+            msg = msg.replace('{{%s:1f}}' % key, self.num2Str1f(self.values[key]))
             msg = msg.replace('{{g:%s}}' % key, self.gradient[key])
             msg = msg.replace('{{c:%s}}' % key, self.palette[key])
         self.message = msg
@@ -457,10 +469,14 @@ class SessionStatistic(object):
         message = message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
         for key in values.keys():
             message = message.replace('{{%s}}' % key, self.num2Str(values[key]))
+            message = message.replace('{{%s:d}}' % key, self.num2Strd(values[key]))
+            message = message.replace('{{%s:1f}}' % key, self.num2Str1f(values[key]))
             message = message.replace('{{g:%s}}' % key, gradient[key])
             message = message.replace('{{c:%s}}' % key, palette[key])
         for key in extendedValues.keys():
             message = message.replace('{{%s}}' % key, self.num2Str(extendedValues[key]))
+            message = message.replace('{{%s:d}}' % key, self.num2Strd(extendedValues[key]))
+            message = message.replace('{{%s:1f}}' % key, self.num2Str1f(extendedValues[key]))
             message = message.replace('{{g:%s}}' % key, gradient[key])
             message = message.replace('{{c:%s}}' % key, palette[key])
         return message
