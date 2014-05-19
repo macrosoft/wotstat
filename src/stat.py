@@ -37,7 +37,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
-        self.cacheVersion = 4
+        self.cacheVersion = 5
         self.queue = Queue()
         self.loaded = False
         self.configIsValid = True
@@ -180,7 +180,8 @@ class SessionStatistic(object):
             return
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
-        win = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam']) else 0
+        result = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam'])\
+            else (0 if not int(value['common']['winnerTeam']) else -1)
         battleTier = 1
         place = 1
         arenaUniqueID = value['arenaUniqueID']
@@ -198,7 +199,7 @@ class SessionStatistic(object):
             'idNum': vehicleCompDesc,
             'name': vt.name,
             'tier': vt.level,
-            'win': win,
+            'result': result,
             'damage': value['personal']['damageDealt'],
             'frag': value['personal']['kills'],
             'spot': value['personal']['spotted'],
@@ -323,9 +324,9 @@ class SessionStatistic(object):
         totalPlace = 0
         places = []
         totalBattleTier = 0
-        valuesKeys = ['winsCount', 'totalDmg', 'totalFrag', 'totalSpot', 'totalDef', 'totalCap', \
-            'totalShots', 'totalHits', 'totalPierced', 'totalAssist', 'totalXP', 'totalOriginXP', \
-            'credits', 'gold']
+        valuesKeys = ['winsCount', 'looseCount', 'drawCount', 'totalDmg', 'totalFrag', 'totalSpot',\
+            'totalDef', 'totalCap', 'totalShots', 'totalHits', 'totalPierced', 'totalAssist',\
+            'totalXP', 'totalOriginXP', 'credits', 'gold']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -333,7 +334,12 @@ class SessionStatistic(object):
         for key in expKeys:
             expValues['total_' + key] = 0.0
         for battle in battles:
-            values['winsCount'] += battle['win']
+            if battle['result'] > 0:
+                values['winsCount'] += 1
+            elif battle['result'] < 0:
+                values['looseCount'] += 1
+            else:
+                values['drawCount'] += 1
             values['totalDmg'] += battle['damage']
             values['totalFrag'] += battle['frag']
             values['totalSpot'] += battle['spot']
