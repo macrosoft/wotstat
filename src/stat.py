@@ -197,7 +197,7 @@ class SessionStatistic(object):
                    value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
         battle = {
             'idNum': vehicleCompDesc,
-            'name': vt.name,
+            'name': vt.name.replace(':', '-'),
             'tier': vt.level,
             'result': result,
             'damage': value['personal']['damageDealt'],
