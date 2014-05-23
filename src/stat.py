@@ -217,6 +217,7 @@ class SessionStatistic(object):
             'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
         }
         extended = {
+            'result': result,
             'autoRepair': value['personal']['autoRepairCost'],
             'autoEquip': value['personal']['autoEquipCost'][0],
             'autoLoad': value['personal']['autoLoadCost'][0]
@@ -504,7 +505,7 @@ class SessionStatistic(object):
             message = self.replaceBattleResultMessage(message, arenaUniqueID)
             item['message']['message'] = message
             if self.config.get('overwriteBattleResultBgIcon', False):
-                result = self.battleStats[arenaUniqueID]['values']['result']
+                result = self.battleStats[arenaUniqueID]['extendedValues']['result']
                 bgIconKey = 'bgIconDefeat' if result < 0 \
                     else ('bgIconWin' if result > 0 else 'bgIconDraw')
                 bgIcon = self.config.get(bgIconKey, item['message']['bgIcon'])
