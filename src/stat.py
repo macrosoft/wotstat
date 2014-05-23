@@ -503,6 +503,12 @@ class SessionStatistic(object):
         if arenaUniqueID > 0 and self.battleStats.has_key(arenaUniqueID) and type(message) == str:
             message = self.replaceBattleResultMessage(message, arenaUniqueID)
             item['message']['message'] = message
+            if self.config.get('overwriteBattleResultBgIcon', False):
+                result = self.battleStats[arenaUniqueID]['values']['result']
+                bgIconKey = 'bgIconDefeat' if result < 0 \
+                    else ('bgIconWin' if result > 0 else 'bgIconDraw')
+                bgIcon = self.config.get(bgIconKey, item['message']['bgIcon'])
+                item['message']['bgIcon'] = bgIcon
         return item
 
 old_onBecomePlayer = Account.onBecomePlayer

@@ -25,6 +25,10 @@
     "battleStatText": [
         "WN8: <font color='{{g:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font>"
     ],
+    "overwriteBattleResultBgIcon": true,
+    "bgIconDefeat": "../Defeat.png",
+    "bgIconDar": "../Draw.png",
+    "bgIconWin": "../Win.png",
     "hideMessagePatterns": [
         "Рекомендуем выполнить привязку вашего аккаунта к телефону",
         "Рекомендуем сменить пароль",
