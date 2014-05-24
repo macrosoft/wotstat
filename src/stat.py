@@ -188,8 +188,9 @@ class SessionStatistic(object):
         vehicles = value['vehicles']
         for key in vehicles.keys():
             pTypeCompDescr = vehicles[key]['typeCompDescr']
-            pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
-            battleTier = max(battleTier, pvt.level)
+            if pTypeCompDescr is not None:
+                pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
+                battleTier = max(battleTier, pvt.level)
             if value['personal']['team'] == vehicles[key]['team'] and \
                 value['personal']['originalXP'] < vehicles[key]['xp']:
                 place += 1
