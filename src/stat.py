@@ -152,9 +152,6 @@ class SessionStatistic(object):
                 'type': 'black',
                 'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
             },
-            'hidingAnimationSpeed': 2000.0,
-            'notify': True,
-            'lifeTime': 6000.0,
             'entityID': 99999,
             'auxData': ['GameGreeting']
         }
@@ -326,7 +323,7 @@ class SessionStatistic(object):
         totalPlace = 0
         places = []
         totalBattleTier = 0
-        valuesKeys = ['winsCount', 'looseCount', 'drawCount', 'totalDmg', 'totalFrag', 'totalSpot',\
+        valuesKeys = ['winsCount', 'defeatsCount', 'drawsCount', 'totalDmg', 'totalFrag', 'totalSpot',\
             'totalDef', 'totalCap', 'totalShots', 'totalHits', 'totalPierced', 'totalAssist',\
             'totalXP', 'totalOriginXP', 'credits', 'gold']
         for key in valuesKeys:
@@ -335,13 +332,9 @@ class SessionStatistic(object):
         expValues = {}
         for key in expKeys:
             expValues['total_' + key] = 0.0
+        resCounters = {-1: 'defeatsCount', 0: 'drawsCount', 1: 'winsCount'}
         for battle in battles:
-            if battle['result'] > 0:
-                values['winsCount'] += 1
-            elif battle['result'] < 0:
-                values['looseCount'] += 1
-            else:
-                values['drawCount'] += 1
+            values[resCounters[battle['result']]] += 1
             values['totalDmg'] += battle['damage']
             values['totalFrag'] += battle['frag']
             values['totalSpot'] += battle['spot']
@@ -507,8 +500,8 @@ class SessionStatistic(object):
             item['message']['message'] = message
             if self.config.get('overwriteBattleResultBgIcon', False):
                 result = self.battleStats[arenaUniqueID]['extendedValues']['result']
-                bgIconKey = 'bgIconDefeat' if result < 0 \
-                    else ('bgIconWin' if result > 0 else 'bgIconDraw')
+                bgIconKeys = {-1: 'bgIconDefeat', 0: 'bgIconDraw', 1: 'bgIconWin'}
+                bgIconKey = bgIconKeys[result]
                 bgIcon = self.config.get(bgIconKey, item['message']['bgIcon'])
                 item['message']['bgIcon'] = bgIcon
         return item
