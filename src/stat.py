@@ -175,6 +175,8 @@ class SessionStatistic(object):
         if responseCode < 0 or value['common']['guiType'] in self.config.get('ignoreBattleType', []):
             self.battleResultsBusy.release()
             return
+        arenaTypeID = value['common']['arenaTypeID']
+        arenaType = ArenaType.g_cache[arenaTypeID]
         vehicleCompDesc = value['personal']['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
         result = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam'])\
@@ -195,7 +197,8 @@ class SessionStatistic(object):
                    value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
         battle = {
             'idNum': vehicleCompDesc,
-            'name': vt.name.replace(':', '-'),
+            'map': arenaType.geometryName,
+            'vehicle': vt.name.replace(':', '-'),
             'tier': vt.level,
             'result': result,
             'damage': value['personal']['damageDealt'],
