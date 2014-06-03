@@ -218,6 +218,8 @@ class SessionStatistic(object):
             'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
         }
         extended = {
+            'vehicle': battle['vehicle'],
+            'map': battle['map'],
             'result': result,
             'autoRepair': value['personal']['autoRepairCost'],
             'autoEquip': value['personal']['autoEquipCost'][0],
