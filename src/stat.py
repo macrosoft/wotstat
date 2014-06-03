@@ -431,20 +431,14 @@ class SessionStatistic(object):
         values['WN8'] = int(values['WN8'])
         values['avgDamage'] = int(values['avgDamage'])
         self.refreshColorMacros(values, gradient, palette)
-
-    def num2Str(self, val):
-        sVal = format(val, ',.2f') if type(val) is float \
-            else format(val, ',d')
-        sVal = sVal.replace(',', ' ')
-        return sVal
-
-    def num2Strd(self, val):
-        sVal = format(int(round(val)), ',d')
-        sVal = sVal.replace(',', ' ')
-        return sVal
-
-    def num2Str1f(self, val):
-        sVal = format(val, ',.1f')
+        
+    def formatString(self, val, prec = 2):
+        if type(val) == str:
+            return val
+        if prec <= 0:
+            return format(int(round(val)), ',d')
+        sVal = format(val, ',.%sf' % prec) \
+            if type(val) is float else format(val, ',d')
         sVal = sVal.replace(',', ' ')
         return sVal
 
@@ -455,9 +449,9 @@ class SessionStatistic(object):
         self.calcWN8(self.battles, self.values, self.gradient, self.palette)
         msg = '\n'.join(self.config.get('template',''))
         for key in self.values.keys():
-            msg = msg.replace('{{%s}}' % key, self.num2Str(self.values[key]))
-            msg = msg.replace('{{%s:d}}' % key, self.num2Strd(self.values[key]))
-            msg = msg.replace('{{%s:1f}}' % key, self.num2Str1f(self.values[key]))
+            msg = msg.replace('{{%s}}' % key, self.formatString(self.values[key]))
+            msg = msg.replace('{{%s:d}}' % key, self.formatString(self.values[key], 0))
+            msg = msg.replace('{{%s:1f}}' % key, self.formatString(self.values[key], 1))
             msg = msg.replace('{{g:%s}}' % key, self.gradient[key])
             msg = msg.replace('{{c:%s}}' % key, self.palette[key])
         self.message = msg
@@ -475,15 +469,15 @@ class SessionStatistic(object):
         palette = self.battleStats[arenaUniqueID]['palette']
         message = message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
         for key in values.keys():
-            message = message.replace('{{%s}}' % key, self.num2Str(values[key]))
-            message = message.replace('{{%s:d}}' % key, self.num2Strd(values[key]))
-            message = message.replace('{{%s:1f}}' % key, self.num2Str1f(values[key]))
+            message = message.replace('{{%s}}' % key, self.formatString(values[key]))
+            message = message.replace('{{%s:d}}' % key, self.formatString(values[key], 0))
+            message = message.replace('{{%s:1f}}' % key, self.formatString(values[key], 1))
             message = message.replace('{{g:%s}}' % key, gradient[key])
             message = message.replace('{{c:%s}}' % key, palette[key])
         for key in extendedValues.keys():
-            message = message.replace('{{%s}}' % key, self.num2Str(extendedValues[key]))
-            message = message.replace('{{%s:d}}' % key, self.num2Strd(extendedValues[key]))
-            message = message.replace('{{%s:1f}}' % key, self.num2Str1f(extendedValues[key]))
+            message = message.replace('{{%s}}' % key, self.formatString(extendedValues[key]))
+            message = message.replace('{{%s:d}}' % key, self.formatString(extendedValues[key], 0))
+            message = message.replace('{{%s:1f}}' % key, self.formatString(extendedValues[key], 1))
             message = message.replace('{{g:%s}}' % key, gradient[key])
             message = message.replace('{{c:%s}}' % key, palette[key])
         return message
