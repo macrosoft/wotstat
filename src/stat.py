@@ -23,6 +23,9 @@ from messenger.formatters.service_channel import BattleResultsFormatter
 from Queue import Queue
 from debug_utils import *
 
+GENERAL = 0
+BY_TANK = 1
+
 def hexToRgb(hex):
     return [int(hex[i:i+2], 16) for i in range(1,6,2)]
 
@@ -37,6 +40,7 @@ def gradColor(startColor, endColor, val):
 class SessionStatistic(object):
 
     def __init__(self):
+        self.page = GENERAL
         self.cacheVersion = 5
         self.queue = Queue()
         self.loaded = False
@@ -50,7 +54,8 @@ class SessionStatistic(object):
         self.values = {}
         self.battles = []
         self.battleStatPatterns = []
-        self.message = ''
+        self.messageGeneral = ''
+        self.messageByTank = ''
         self.playerName = ''
         self.startDate = None
         self.battleResultsAvailable = threading.Event()
@@ -139,6 +144,11 @@ class SessionStatistic(object):
         statCache.close()
 
     def createMessage(self):
+        messages = {
+                GENERAL: self.messageGeneral, 
+                BY_TANK: self.messageByTank
+            }
+        msg = messages[self.page]
         message = {
             'typeID': 1,
             'message': {
@@ -148,13 +158,23 @@ class SessionStatistic(object):
                 'timestamp': -1,
                 'filters': [],
                 'buttonsLayout': [],
-                'message': self.message,
+                'message': msg,
                 'type': 'black',
                 'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
             },
             'entityID': 99999,
             'auxData': ['GameGreeting']
         }
+        if self.config.get('showStatByTank', True):
+            buttonNames = {
+                GENERAL: self.config.get('textGeneralPageButton', 'By tank'), 
+                BY_TANK: self.config.get('textByTankPageButton', 'General')
+            }
+            message['message']['buttonsLayout'].append({
+                'action': 'wotstatSwitchPage',
+                'type': 'submit',
+                'label': buttonNames[self.page]
+            })
         if self.config.get('showResetButton', False):
             message['message']['buttonsLayout'].append({
                 'action': 'wotstatReset',
@@ -455,7 +475,9 @@ class SessionStatistic(object):
             msg = msg.replace('{{%s:1f}}' % key, self.formatString(self.values[key], 1))
             msg = msg.replace('{{g:%s}}' % key, self.gradient[key])
             msg = msg.replace('{{c:%s}}' % key, self.palette[key])
-        self.message = msg
+        self.messageGeneral = msg
+        msg = self.config.get('byTankTitle','') + '\n'
+        self.messageByTank = msg
 
     def replaceBattleResultMessage(self, message, arenaUniqueID):
         message = unicode(message, 'utf-8')
@@ -539,6 +561,8 @@ old_nlv_onClickAction = NotificationListView.onClickAction
 def new_onClickAction(self, typeID, entityID, action):
     if action == 'wotstatReset':
         stat.reset()
+    elif action == 'wotstatSwitchPage':
+        stat.page = 1 - stat.page
     else:
         old_nlv_onClickAction(self, typeID, entityID, action)
 

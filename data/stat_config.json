@@ -60,6 +60,10 @@
         "<font color='#FFCC66'>Опыт:</font><tab><font color='{{g:medPlace}}'><b>{{totalXP}}<tab>{{avgOriginalXP}}<tab>{{medPlace:1f}}</b></font>",
         "<font color='#FFCC66'>Кредиты:</font><tab><font color='{{c:credits}}'><b>{{credits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'><tab>{{avgCredits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'></b></font></textformat><font>"
     ],
+    "showStatByTank": true,
+    "textGeneralPageButton": "По танкам",
+    "textByTankPageButton": "Общая",
+    "byTankTitle": "<font size='12' color='#FFCC66'><textformat leading='-4' tabstops='[80,130,170]'>Танк<tab>Победы<tab>Урон<tab>WN8</textformat><font>",
     "gradient": {
         "WN8": [
             {"value": 155, "color": "#FE0E00"},
