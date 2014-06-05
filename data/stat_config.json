@@ -45,6 +45,7 @@
     "textResetButton": "Сброс",
     "dailyAutoReset": true,
     "dailyAutoResetHour": 4,
+    "enableBattleEndedMessage": true,
     "battleEndedMessageDefeat": "<font color='#FE0E00'>Бой {{map}} - {{vehicle}} завершился поражением.</font>",
     "battleEndedMessageDraw": "<font color='#FE7903'>Бой {{map}} - {{vehicle}} завершился ничьей.</font>",
     "battleEndedMessageWin": "<font color='#60FF00'>Бой {{map}} - {{vehicle}} завершился победой!</font>",

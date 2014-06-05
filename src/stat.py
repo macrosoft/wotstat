@@ -562,7 +562,7 @@ def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
     arenaUniqueID = message.data.get('arenaUniqueID', 0)
     stat.queue.put(arenaUniqueID)
-    if hasattr(BigWorld.player(), 'arena'):
+    if stat.config.get('enableBattleEndedMessage', True) and hasattr(BigWorld.player(), 'arena'):
         if BigWorld.player().arena.arenaUniqueID != arenaUniqueID:
             isWinner = message.data.get('isWinner', 0)
             battleEndedMessage = ''
