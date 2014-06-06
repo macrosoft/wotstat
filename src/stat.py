@@ -476,7 +476,22 @@ class SessionStatistic(object):
             msg = msg.replace('{{g:%s}}' % key, self.gradient[key])
             msg = msg.replace('{{c:%s}}' % key, self.palette[key])
         self.messageGeneral = msg
-        msg = self.config.get('byTankTitle','') + '\n'
+        msg = self.config.get('byTankTitle','')
+        for battle in self.battles:
+            row = self.config.get('byTankRow','')
+            values = {}
+            gradient = {}
+            palette = {}
+            self.calcWN8([battle], values, gradient, palette)
+            vt = vehiclesWG.getVehicleType(battle['idNum'])
+            row = row.replace('{{name}}', vt.shortUserString)
+            for key in values.keys():
+                row = row.replace('{{%s}}' % key, self.formatString(values[key]))
+                row = row.replace('{{%s:d}}' % key, self.formatString(values[key], 0))
+                row = row.replace('{{%s:1f}}' % key, self.formatString(values[key], 1))
+                row = row.replace('{{g:%s}}' % key, gradient[key])
+                row = row.replace('{{c:%s}}' % key, palette[key])
+            msg += '\n' + row 
         self.messageByTank = msg
 
     def replaceBattleResultMessage(self, message, arenaUniqueID):
