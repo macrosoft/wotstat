@@ -484,7 +484,7 @@ class SessionStatistic(object):
                 tankStat[idNum].append(battle)
             else:
                 tankStat[idNum] = [battle]
-        for idNum in tankStat:
+        for idNum in sorted(tankStat.keys(), key = lambda idNum: len(tankStat[idNum]), reverse = True):
             row = self.config.get('byTankRow','')
             values = {}
             gradient = {}
