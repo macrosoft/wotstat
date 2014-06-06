@@ -27,7 +27,7 @@
     ],
     "overwriteBattleResultBgIcon": false,
     "bgIconDefeat": "../../scripts/client/mods/Defeat.png",
-    "bgIconDar": "../../scripts/client/mods/Draw.png",
+    "bgIconDraw": "../../scripts/client/mods/Draw.png",
     "bgIconWin": "../../scripts/client/mods/Win.png",
     "hideMessagePatterns": [
         "Рекомендуем выполнить привязку вашего аккаунта к телефону",

@@ -477,13 +477,20 @@ class SessionStatistic(object):
             msg = msg.replace('{{c:%s}}' % key, self.palette[key])
         self.messageGeneral = msg
         msg = self.config.get('byTankTitle','')
+        tankStat = {}
         for battle in self.battles:
+            idNum = battle['idNum']
+            if tankStat.has_key(idNum):
+                tankStat[idNum].append(battle)
+            else:
+                tankStat[idNum] = [battle]
+        for idNum in tankStat:
             row = self.config.get('byTankRow','')
             values = {}
             gradient = {}
             palette = {}
-            self.calcWN8([battle], values, gradient, palette)
-            vt = vehiclesWG.getVehicleType(battle['idNum'])
+            self.calcWN8(tankStat[idNum], values, gradient, palette)
+            vt = vehiclesWG.getVehicleType(idNum)
             row = row.replace('{{name}}', vt.shortUserString)
             for key in values.keys():
                 row = row.replace('{{%s}}' % key, self.formatString(values[key]))
