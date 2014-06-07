@@ -453,7 +453,7 @@ class SessionStatistic(object):
         values['avgDamage'] = int(values['avgDamage'])
         self.refreshColorMacros(values, gradient, palette)
         
-    def formatString(self, val, prec = 2):
+    def applyMacros(self, val, prec = 2):
         if type(val) == str:
             return val
         if prec <= 0:
@@ -463,18 +463,22 @@ class SessionStatistic(object):
         sVal = sVal.replace(',', ' ')
         return sVal
 
+    def formatString(self, text, values, gradient, palette):
+        for key in values.keys():
+            text = text.replace('{{%s}}' % key, self.applyMacros(values[key]))
+            text = text.replace('{{%s:d}}' % key, self.applyMacros(values[key], 0))
+            text = text.replace('{{%s:1f}}' % key, self.applyMacros(values[key], 1))
+            text = text.replace('{{g:%s}}' % key, gradient[key])
+            text = text.replace('{{c:%s}}' % key, palette[key])
+        return text
+
     def updateMessage(self):
         if not self.configIsValid:
             self.message = 'stat_config.json is not valid'
             return
         self.calcWN8(self.battles, self.values, self.gradient, self.palette)
         msg = '\n'.join(self.config.get('template',''))
-        for key in self.values.keys():
-            msg = msg.replace('{{%s}}' % key, self.formatString(self.values[key]))
-            msg = msg.replace('{{%s:d}}' % key, self.formatString(self.values[key], 0))
-            msg = msg.replace('{{%s:1f}}' % key, self.formatString(self.values[key], 1))
-            msg = msg.replace('{{g:%s}}' % key, self.gradient[key])
-            msg = msg.replace('{{c:%s}}' % key, self.palette[key])
+        msg = self.formatString(msg, self.values, self.gradient, self.palette)
         self.messageGeneral = msg
         msg = self.config.get('byTankTitle','')
         tankStat = {}
@@ -492,12 +496,7 @@ class SessionStatistic(object):
             self.calcWN8(tankStat[idNum], values, gradient, palette)
             vt = vehiclesWG.getVehicleType(idNum)
             row = row.replace('{{name}}', vt.shortUserString)
-            for key in values.keys():
-                row = row.replace('{{%s}}' % key, self.formatString(values[key]))
-                row = row.replace('{{%s:d}}' % key, self.formatString(values[key], 0))
-                row = row.replace('{{%s:1f}}' % key, self.formatString(values[key], 1))
-                row = row.replace('{{g:%s}}' % key, gradient[key])
-                row = row.replace('{{c:%s}}' % key, palette[key])
+            row = self.formatString(row, values, gradient, palette)
             msg += '\n' + row 
         self.messageByTank = msg
 
@@ -513,18 +512,9 @@ class SessionStatistic(object):
         gradient = self.battleStats[arenaUniqueID]['gradient']
         palette = self.battleStats[arenaUniqueID]['palette']
         message = message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
-        for key in values.keys():
-            message = message.replace('{{%s}}' % key, self.formatString(values[key]))
-            message = message.replace('{{%s:d}}' % key, self.formatString(values[key], 0))
-            message = message.replace('{{%s:1f}}' % key, self.formatString(values[key], 1))
-            message = message.replace('{{g:%s}}' % key, gradient[key])
-            message = message.replace('{{c:%s}}' % key, palette[key])
-        for key in extendedValues.keys():
-            message = message.replace('{{%s}}' % key, self.formatString(extendedValues[key]))
-            message = message.replace('{{%s:d}}' % key, self.formatString(extendedValues[key], 0))
-            message = message.replace('{{%s:1f}}' % key, self.formatString(extendedValues[key], 1))
-            message = message.replace('{{g:%s}}' % key, gradient[key])
-            message = message.replace('{{c:%s}}' % key, palette[key])
+        allValues = values
+        allValues.update(extendedValues)
+        message = self.formatString(message, allValues, gradient, palette)
         return message
 
     def filterNotificationList(self, item):
