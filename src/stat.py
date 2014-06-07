@@ -165,7 +165,7 @@ class SessionStatistic(object):
             'entityID': 99999,
             'auxData': ['GameGreeting']
         }
-        if self.config.get('showStatByTank', True):
+        if len(self.battles) and self.config.get('showStatByTank', True):
             buttonNames = {
                 GENERAL: self.config.get('textGeneralPageButton', 'By tank'), 
                 BY_TANK: self.config.get('textByTankPageButton', 'General')
