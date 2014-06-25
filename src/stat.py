@@ -263,6 +263,7 @@ class SessionStatistic(object):
         self.battleResultsBusy.release()
 
     def reset(self):
+        self.page = GENERAL
         self.startDate = self.getWorkDate()
         self.battles = []
         self.save()
