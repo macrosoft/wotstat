@@ -495,7 +495,9 @@ class SessionStatistic(object):
             palette = {}
             self.calcWN8(tankStat[idNum], values, gradient, palette)
             vt = vehiclesWG.getVehicleType(idNum)
-            row = row.replace('{{name}}', vt.shortUserString)
+            row = row.replace('{{vehicle}}', vt.shortUserString)
+            name = vt.name.replace(':', '-')
+            row = row.replace('{{vehicle-name}}', name)
             row = self.formatString(row, values, gradient, palette)
             msg += '\n' + row 
         self.messageByTank = msg
