@@ -67,12 +67,12 @@
     "byTankRow": "<font size='12'><textformat leading='-4' tabstops='[70,115,160]'><font color='#FFE6B3'>{{vehicle}}</font><tab><font color='{{g:rWIN}}'>{{winsCount}}/{{battlesCount}}</font><tab><font color='{{g:rDAMAGE}}'>{{avgDamage}}</font><tab><font color='{{g:WN8}}'>{{WN8}} ({{XWN8}})</font></textformat></font>",
     "gradient": {
         "WN8": [
-            {"value": 155, "color": "#FE0E00"},
-            {"value": 530, "color": "#FE7903"},
-            {"value": 1030, "color": "#F8F400"},
-            {"value": 1638, "color": "#60FF00"},
-            {"value": 2253, "color": "#02C9B3"},
-            {"value": 2895, "color": "#D042F3"}
+            {"value": 157, "color": "#FE0E00"},
+            {"value": 537, "color": "#FE7903"},
+            {"value": 1042, "color": "#F8F400"},
+            {"value": 1652, "color": "#60FF00"},
+            {"value": 2274, "color": "#02C9B3"},
+            {"value": 2935, "color": "#D042F3"}
         ],
         "rWIN": [
             {"value": 0.34, "color": "#FE0E00"},
