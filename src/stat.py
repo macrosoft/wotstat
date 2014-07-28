@@ -112,8 +112,15 @@ class SessionStatistic(object):
                 self.battleStatPatterns = []
                 for pattern in self.config.get('battleStatPatterns',[]):
                     try:
+                        condition = pattern.get('if', 'True')
+                        condition = re.sub('{{(\w+)}}', 'values[\'\\1\']', condition)
+                    except:
+                        print "[wotstat] Invalid condition " + pattern.get('if','')
+                        continue
+                    try:
                         compiled = re.compile(pattern.get('pattern',''))
                         self.battleStatPatterns.append({
+                            'condition': condition,
                             'pattern': compiled,
                             'repl': pattern.get('repl','')
                         })
@@ -508,17 +515,23 @@ class SessionStatistic(object):
         message = unicode(message, 'utf-8')
         if self.config.get('debugBattleResultMessage', False):
             LOG_NOTE(message)
+        basicValues = self.battleStats[arenaUniqueID]['values']
+        extendedValues = self.battleStats[arenaUniqueID]['extendedValues']
+        values = basicValues
+        values.update(extendedValues)
         for pattern in self.battleStatPatterns:
+            try:
+                if not eval(pattern.get('condition')):
+                    continue
+            except:
+                print "[wotstat] Invalid calculation condition " + pattern.get('condition')
+                continue
             message = re.sub(pattern.get('pattern',''), pattern.get('repl',''), message)
         battleStatText = '\n'.join(self.config.get('battleStatText',''))
-        values = self.battleStats[arenaUniqueID]['values']
-        extendedValues = self.battleStats[arenaUniqueID]['extendedValues']
         gradient = self.battleStats[arenaUniqueID]['gradient']
         palette = self.battleStats[arenaUniqueID]['palette']
         message = message + '\n<font color=\'#929290\'>' + battleStatText + '</font>'
-        allValues = values
-        allValues.update(extendedValues)
-        message = self.formatString(message, allValues, gradient, palette)
+        message = self.formatString(message, values, gradient, palette)
         return message
 
     def filterNotificationList(self, item):

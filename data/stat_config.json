@@ -10,6 +10,11 @@
             "repl": "\\1<font color='{{g:medPlace}}'>\\2"
         },
         {
+            "if": "{{avgXP}} != {{tmenXP}}",
+            "pattern": "(Получено опыта:.*)",
+            "repl": "\\1\n<font color='#929290'>Опыт экипажа: <font color='{{g:medPlace}}'>{{tmenXP}}</font></font>"
+        },
+        {
             "pattern": " за первую победу в день",
             "repl": ""
         },
