@@ -243,7 +243,8 @@ class SessionStatistic(object):
             'result': result,
             'autoRepair': value['personal']['autoRepairCost'],
             'autoEquip': value['personal']['autoEquipCost'][0],
-            'autoLoad': value['personal']['autoLoadCost'][0]
+            'autoLoad': value['personal']['autoLoadCost'][0],
+            'tmenXP': value['personal']['tmenXP']
         }
         if self.config.get('dailyAutoReset', True) and self.startDate != stat.getWorkDate():
             self.reset()
