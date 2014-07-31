@@ -45,7 +45,7 @@
     ],
     "debugBattleResultMessage": false,
     "onlineReloadConfig": false,
-    "ignoreBattleType": [2, 4, 7],
+    "ignoreBattleType": [2, 4, 7, 8],
     "showResetButton": false,
     "textResetButton": "Сброс",
     "dailyAutoReset": true,
