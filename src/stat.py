@@ -161,7 +161,7 @@ class SessionStatistic(object):
             'message': {
                 'bgIcon':  self.config.get('bgIcon', ''),
                 'defaultIcon': '',
-                'savedID': 0,
+                'savedData': 0,
                 'timestamp': -1,
                 'filters': [],
                 'buttonsLayout': [],
@@ -544,7 +544,8 @@ class SessionStatistic(object):
         return True
 
     def expandStatNotificationList(self, item):
-        arenaUniqueID = int(item['message'].get('savedID', -1))
+        savedData = item['message'].get('savedData', -1)
+        arenaUniqueID = int(savedData) if savedData else -1
         message = item['message'].get('message', '')
         if arenaUniqueID > 0 and self.battleStats.has_key(arenaUniqueID) and type(message) == str:
             message = self.replaceBattleResultMessage(message, arenaUniqueID)
