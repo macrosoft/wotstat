@@ -222,6 +222,9 @@ class SessionStatistic(object):
                 place += 1
         proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
                    value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
+        tmenXP = value['personal']['tmenXP']
+        if 'premium' in vt.tags:
+            tmenXP = int(1.5*tmenXP)
         battle = {
             'idNum': vehicleCompDesc,
             'map': arenaType.geometryName,
@@ -251,7 +254,7 @@ class SessionStatistic(object):
             'autoRepair': value['personal']['autoRepairCost'],
             'autoEquip': value['personal']['autoEquipCost'][0],
             'autoLoad': value['personal']['autoLoadCost'][0],
-            'tmenXP': value['personal']['tmenXP']
+            'tmenXP': tmenXP
         }
         if self.config.get('dailyAutoReset', True) and self.startDate != stat.getWorkDate():
             self.reset()
