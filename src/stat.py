@@ -41,7 +41,7 @@ class SessionStatistic(object):
 
     def __init__(self):
         self.page = GENERAL
-        self.cacheVersion = 5
+        self.cacheVersion = 6
         self.queue = Queue()
         self.loaded = False
         self.configIsValid = True
@@ -241,6 +241,7 @@ class SessionStatistic(object):
             'pierced': value['personal']['piercings'],
             'xp': value['personal']['xp'],
             'originalXP': value['personal']['originalXP'],
+            'freeXP': value['personal']['freeXP'],
             'place': place,
             'credits': proceeds,
             'gold': value['personal']['gold'] - value['personal']['autoEquipCost'][1] - value['personal']['autoLoadCost'][1],
@@ -362,7 +363,7 @@ class SessionStatistic(object):
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'defeatsCount', 'drawsCount', 'totalDmg', 'totalFrag', 'totalSpot',\
             'totalDef', 'totalCap', 'totalShots', 'totalHits', 'totalPierced', 'totalAssist',\
-            'totalXP', 'totalOriginXP', 'credits', 'gold']
+            'totalXP', 'totalOriginXP', 'totalFreeXP', 'credits', 'gold']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -383,6 +384,7 @@ class SessionStatistic(object):
             values['totalAssist'] += battle['assist']
             values['totalXP'] += battle['xp']
             values['totalOriginXP'] += battle['originalXP']
+            values['totalFreeXP'] += battle['freeXP']
             values['credits'] += battle['credits']
             values['gold'] += battle['gold']
             totalTier += battle['tier']
