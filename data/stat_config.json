@@ -40,8 +40,8 @@
         "Ремонт .* выполнен успешно",
         "Боекомплект на .* пополнен успешно",
         "Снаряжение на .* пополнено успешно",
-        "Высадка танкиста в Казарму выполнена успешно",
-        "Пересадка танкиста выполнена успешно"
+        "Высадка .*экипажа в Казарму выполнена успешно",
+        "Пересадка .*экипажа выполнена успешно"
     ],
     "debugBattleResultMessage": false,
     "onlineReloadConfig": false,
@@ -72,12 +72,12 @@
     "byTankRow": "<font size='12'><textformat leading='-4' tabstops='[70,115,160]'><font color='#FFE6B3'>{{vehicle}}</font><tab><font color='{{g:rWIN}}'>{{winsCount}}/{{battlesCount}}</font><tab><font color='{{g:rDAMAGE}}'>{{avgDamage}}</font><tab><font color='{{g:WN8}}'>{{WN8}} ({{XWN8}})</font></textformat></font>",
     "gradient": {
         "WN8": [
-            {"value": 157, "color": "#FE0E00"},
-            {"value": 537, "color": "#FE7903"},
-            {"value": 1042, "color": "#F8F400"},
-            {"value": 1652, "color": "#60FF00"},
-            {"value": 2274, "color": "#02C9B3"},
-            {"value": 2935, "color": "#D042F3"}
+            {"value": 178, "color": "#FE0E00"},
+            {"value": 588, "color": "#FE7903"},
+            {"value": 1095, "color": "#F8F400"},
+            {"value": 1659, "color": "#60FF00"},
+            {"value": 2320, "color": "#02C9B3"},
+            {"value": 3010, "color": "#D042F3"}
         ],
         "rWIN": [
             {"value": 0.34, "color": "#FE0E00"},
