@@ -28,7 +28,7 @@
         }
     ],
     "battleStatText": [
-        "WN8: <font color='{{g:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font>"
+        "WN8: <font color='{{g:XWN8}}'><b>{{WN8}} ({{XWN8}})</b></font>"
     ],
     "overwriteBattleResultBgIcon": false,
     "bgIconDefeat": "../../scripts/client/mods/Defeat.png",
@@ -56,7 +56,7 @@
     "battleEndedMessageWin": "<font color='#60FF00'>Бой {{map}} - {{vehicle}} завершился победой!</font>",
     "bgIcon": "",
     "template": [
-        "<font size='12'><textformat leading='-4' tabstops='[50,130]'><font color='#FFCC66'>WN8:</font><tab><font color='{{g:WN8}}'><b>{{WN8}} ({{XWN8}})</b></font><tab><font color='#FFCC66'><b>{{avgTier:1f}} (+{{avgBattleTierDiff:1f}}) </b>ур</font></textformat>",
+        "<font size='12'><textformat leading='-4' tabstops='[50,130]'><font color='#FFCC66'>WN8:</font><tab><font color='{{g:XWN8}}'><b>{{WN8}} ({{XWN8}})</b></font><tab><font color='#FFCC66'><b>{{avgTier:1f}} (+{{avgBattleTierDiff:1f}}) </b>ур</font></textformat>",
         "<textformat leading='-4' tabstops='[50,130,190]'><font color='#FFCC66'>Победы:</font><tab><font color='{{g:rWIN}}'><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
         "<font color='#FFCC66'>Урон:</font><tab><font color='{{g:rDAMAGE}}'><b>{{totalDmg}}<tab>{{avgDamage}}<tab>{{rDAMAGE}}</b></font>",
         "<font color='#FFCC66'>Фраги:</font><tab><font color='{{g:rFRAG}}'><b>{{totalFrag}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
@@ -69,55 +69,55 @@
     "textGeneralPageButton": "По танкам",
     "textByTankPageButton": "Общая",
     "byTankTitle": "<font size='13' color='#FFCC66'><textformat leading='-4' tabstops='[70,115,160]'>Танк<tab>Победы<tab>Урон<tab>WN8</textformat></font><hr>",
-    "byTankRow": "<font size='12'><textformat leading='-4' tabstops='[70,115,160]'><font color='#FFE6B3'>{{vehicle}}</font><tab><font color='{{g:rWIN}}'>{{winsCount}}/{{battlesCount}}</font><tab><font color='{{g:rDAMAGE}}'>{{avgDamage}}</font><tab><font color='{{g:WN8}}'>{{WN8}} ({{XWN8}})</font></textformat></font>",
+    "byTankRow": "<font size='12'><textformat leading='-4' tabstops='[70,115,160]'><font color='#FFE6B3'>{{vehicle}}</font><tab><font color='{{g:rWIN}}'>{{winsCount}}/{{battlesCount}}</font><tab><font color='{{g:rDAMAGE}}'>{{avgDamage}}</font><tab><font color='{{g:XWN8}}'>{{WN8}} ({{XWN8}})</font></textformat></font>",
     "gradient": {
-        "WN8": [
-            {"value": 178, "color": "#FE0E00"},
-            {"value": 588, "color": "#FE7903"},
-            {"value": 1095, "color": "#F8F400"},
-            {"value": 1659, "color": "#60FF00"},
-            {"value": 2320, "color": "#02C9B3"},
-            {"value": 3010, "color": "#D042F3"}
+        "XWN8": [
+            {"value": 8, "color": "#FE0E00"},
+            {"value": 25, "color": "#FE7903"},
+            {"value": 43, "color": "#F8F400"},
+            {"value": 64, "color": "#60FF00"},
+            {"value": 84, "color": "#02C9B3"},
+            {"value": 96.5, "color": "#D042F3"}
         ],
         "rWIN": [
-            {"value": 0.34, "color": "#FE0E00"},
-            {"value": 0.57, "color": "#FE7903"},
-            {"value": 0.81, "color": "#F8F400"},
-            {"value": 1.03, "color": "#60FF00"},
-            {"value": 1.22, "color": "#02C9B3"},
-            {"value": 1.57, "color": "#D042F3"}
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
         ],
         "rDAMAGE": [
-            {"value": 0.34, "color": "#FE0E00"},
-            {"value": 0.57, "color": "#FE7903"},
-            {"value": 0.81, "color": "#F8F400"},
-            {"value": 1.03, "color": "#60FF00"},
-            {"value": 1.22, "color": "#02C9B3"},
-            {"value": 1.57, "color": "#D042F3"}
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
         ],
         "rFRAG": [
-            {"value": 0.34, "color": "#FE0E00"},
-            {"value": 0.57, "color": "#FE7903"},
-            {"value": 0.81, "color": "#F8F400"},
-            {"value": 1.03, "color": "#60FF00"},
-            {"value": 1.22, "color": "#02C9B3"},
-            {"value": 1.57, "color": "#D042F3"}
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
         ],
         "rSPOT": [
-            {"value": 0.34, "color": "#FE0E00"},
-            {"value": 0.57, "color": "#FE7903"},
-            {"value": 0.81, "color": "#F8F400"},
-            {"value": 1.03, "color": "#60FF00"},
-            {"value": 1.22, "color": "#02C9B3"},
-            {"value": 1.57, "color": "#D042F3"}
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
         ],
         "rDEF": [
-            {"value": 0.34, "color": "#FE0E00"},
-            {"value": 0.57, "color": "#FE7903"},
-            {"value": 0.81, "color": "#F8F400"},
-            {"value": 1.03, "color": "#60FF00"},
-            {"value": 1.22, "color": "#02C9B3"},
-            {"value": 1.57, "color": "#D042F3"}
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
         ],
         "medPlace": [
             {"value": 1, "color": "#D042F3"},
