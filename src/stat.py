@@ -550,7 +550,11 @@ class SessionStatistic(object):
 
     def expandStatNotificationList(self, item):
         savedData = item['message'].get('savedData', -1)
-        arenaUniqueID = int(savedData) if savedData else -1
+        arenaUniqueID = -1
+        if isinstance(savedData, long):
+            arenaUniqueID = int(savedData)
+        elif isinstance(savedData, tuple):
+            arenaUniqueID = int(savedData[0])
         message = item['message'].get('message', '')
         if arenaUniqueID > 0 and self.battleStats.has_key(arenaUniqueID) and type(message) == str:
             message = self.replaceBattleResultMessage(message, arenaUniqueID)
