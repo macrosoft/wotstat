@@ -199,7 +199,7 @@ class SessionStatistic(object):
             BigWorld.callback(1.0, addArenaUniqueID)
             self.battleResultsBusy.release()
             return
-        if responseCode < 0 or value['common']['guiType'] in self.config.get('ignoreBattleType', []):
+        if responseCode < 0:
             self.battleResultsBusy.release()
             return
         arenaTypeID = value['common']['arenaTypeID']
@@ -259,9 +259,10 @@ class SessionStatistic(object):
         }
         if self.config.get('dailyAutoReset', True) and self.startDate != stat.getWorkDate():
             self.reset()
-        self.battles.append(battle)
-        self.save()
-        self.updateMessage()
+        if value['common']['guiType'] not in self.config.get('ignoreBattleType', []):
+            self.battles.append(battle)
+            self.save()
+            self.updateMessage()
         battleStat = {}
         gradient = {}
         palette = {}
