@@ -542,8 +542,9 @@ class SessionStatistic(object):
 
     def filterNotificationList(self, item):
         message = item['message'].get('message', '')
-        if type(message) == str:
-            msg = unicode(message, 'utf-8')
+        msg = unicode(message, 'utf-8') if isinstance(message, str) \
+            else message if isinstance(message, unicode) else None
+        if msg:
             for pattern in self.config.get('hideMessagePatterns', []):
                 if re.search(pattern, msg, re.I):
                     return False
@@ -596,6 +597,8 @@ def new_nlv_populate(self):
     old_nlv_populate(self)
     self.as_appendMessageS(stat.createMessage())
 
+NotificationListView._populate = new_nlv_populate
+
 old_nlv_onClickAction = NotificationListView.onClickAction
 
 def new_onClickAction(self, typeID, entityID, action):
@@ -607,8 +610,6 @@ def new_onClickAction(self, typeID, entityID, action):
         old_nlv_onClickAction(self, typeID, entityID, action)
 
 NotificationListView.onClickAction = new_onClickAction
-
-NotificationListView._populate = new_nlv_populate
 
 def new_nlv_setNotificationList(self):
     formedList = map(lambda item: item.getListVO(), self._model.collection.getListIterator())
