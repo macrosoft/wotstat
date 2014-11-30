@@ -263,11 +263,10 @@ class SessionStatistic(object):
             self.battles.append(battle)
             self.save()
             self.updateMessage()
-        battleStat = {}
-        gradient = {}
-        palette = {}
-        self.calcWN8([battle], battleStat, gradient, palette)
-        self.refreshColorMacros(extended, gradient, palette)
+        (battleStat, gradient, palette) = self.calcWN8([battle])
+        (extGradient, extPalette) = self.refreshColorMacros(extended)
+        gradient.update(extGradient)
+        palette.update(extPalette)
         self.battleStats[arenaUniqueID] = {}
         self.battleStats[arenaUniqueID]['values'] = battleStat
         self.battleStats[arenaUniqueID]['extendedValues'] = extended
@@ -290,12 +289,14 @@ class SessionStatistic(object):
             shotBRCallback = partial(self.battleResultsCallback, arenaUniqueID)
             BigWorld.player().battleResultsCache.get(arenaUniqueID, shotBRCallback)
 
-    def refreshColorMacros(self, values, gradient, palette):
+    def refreshColorMacros(self, values):
+        gradient = {}
+        palette = {}
         if values.get('battlesCount', 1) == 0:
             for key in values.keys():
                 gradient[key] = '#FFFFFF'
                 palette[key] = '#FFFFFF'
-            return
+            return (gradient, palette)
         for key in values.keys():
             if self.config.get('gradient', {}).has_key(key):
                 colors = self.config.get('gradient', {})[key]
@@ -325,6 +326,7 @@ class SessionStatistic(object):
                         break
             else:
                 palette[key] = '#FFFFFF'
+        return (gradient, palette)
 
     def calcExpected(self, newIdNum):
         v = vehiclesWG.getVehicleType(newIdNum)
@@ -356,7 +358,8 @@ class SessionStatistic(object):
             tierExpected[key] /= tierExpectedCount
         self.expectedValues[newIdNum] = tierExpected.copy()
 
-    def calcWN8(self, battles, values, gradient, palette):
+    def calcWN8(self, battles):
+        values = {}
         values['battlesCount'] = len(battles)
         totalTier = 0
         totalPlace = 0
@@ -466,7 +469,8 @@ class SessionStatistic(object):
             0.0000000197) - 0.00003192) + 0.056265) - 0.157, 100), 0))
         values['WN8'] = int(values['WN8'])
         values['avgDamage'] = int(values['avgDamage'])
-        self.refreshColorMacros(values, gradient, palette)
+        (gradient, palette) = self.refreshColorMacros(values)
+        return (values, gradient, palette)
         
     def applyMacros(self, val, prec = 2):
         if type(val) == str:
@@ -491,7 +495,7 @@ class SessionStatistic(object):
         if not self.configIsValid:
             self.message = 'stat_config.json is not valid'
             return
-        self.calcWN8(self.battles, self.values, self.gradient, self.palette)
+        (self.values, self.gradient, self.palette) = self.calcWN8(self.battles)
         msg = '\n'.join(self.config.get('template',''))
         msg = self.formatString(msg, self.values, self.gradient, self.palette)
         self.messageGeneral = msg
@@ -505,10 +509,7 @@ class SessionStatistic(object):
                 tankStat[idNum] = [battle]
         for idNum in sorted(tankStat.keys(), key = lambda idNum: len(tankStat[idNum]), reverse = True):
             row = self.config.get('byTankRow','')
-            values = {}
-            gradient = {}
-            palette = {}
-            self.calcWN8(tankStat[idNum], values, gradient, palette)
+            (values, gradient, palette) = self.calcWN8(tankStat[idNum])
             vt = vehiclesWG.getVehicleType(idNum)
             row = row.replace('{{vehicle}}', vt.shortUserString)
             name = vt.name.replace(':', '-')
