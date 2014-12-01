@@ -57,6 +57,7 @@ class SessionStatistic(object):
         self.messageGeneral = ''
         self.messageByTank = ''
         self.playerName = ''
+        self.bgIcon = ''
         self.startDate = None
         self.battleResultsAvailable = threading.Event()
         self.battleResultsAvailable.clear()
@@ -159,7 +160,7 @@ class SessionStatistic(object):
         message = {
             'typeID': 1,
             'message': {
-                'bgIcon':  self.config.get('bgIcon', ''),
+                'bgIcon': self.bgIcon,
                 'defaultIcon': '',
                 'savedData': 0,
                 'timestamp': -1,
@@ -496,6 +497,8 @@ class SessionStatistic(object):
             self.message = 'stat_config.json is not valid'
             return
         (self.values, self.gradient, self.palette) = self.calcWN8(self.battles)
+        bg = self.config.get('bgIcon', '')
+        self.bgIcon = self.formatString(bg, self.values, self.gradient, self.palette)
         msg = '\n'.join(self.config.get('template',''))
         msg = self.formatString(msg, self.values, self.gradient, self.palette)
         self.messageGeneral = msg
