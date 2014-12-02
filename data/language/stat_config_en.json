@@ -2,25 +2,25 @@
     "showStatForBattle": true,
     "battleStatPatterns": [
         {
-            "pattern": "(Получено кредитов: )<font color='#C5CFCF'>[\\d ]+",
+            "pattern": "(Credits: )<font color='#C5CFCF'>[\\d ]+",
             "repl": "\\1<font color='{{c:credits}}'>{{credits}}"
         },
         {
-            "pattern": "(Получено опыта: )<font color='#C8C8B5'>([\\d ]+)",
+            "pattern": "(Avg. Place: )<font color='#C8C8B5'>([\\d ]+)",
             "repl": "\\1<font color='{{g:medPlace}}'>\\2"
         },
         {
             "if": "{{avgXP}} != {{tmenXP}}",
-            "pattern": "(Получено опыта:.*)",
-            "repl": "\\1\n<font color='#929290'>Опыт экипажа: <font color='{{g:medPlace}}'>{{tmenXP}}</font></font>"
+            "pattern": "(Gained XP:.*)",
+            "repl": "\\1\n<font color='#929290'>Crew XP: <font color='{{g:medPlace}}'>{{tmenXP}}</font></font>"
         },
         {
-            "pattern": " за первую победу в день",
+            "pattern": " for the first victory each day",
             "repl": ""
         },
         {
-            "pattern": "Достижения в бою",
-            "repl": "Достижения"
+            "pattern": "Battle Achievements",
+            "repl": "Achievements"
         },
         {
             "pattern": "(\\d) степень",
