@@ -1,0 +1,146 @@
+{
+    "showStatForBattle": true,
+    "battleStatPatterns": [
+        {
+            "pattern": "(Получено кредитов: )<font color='#C5CFCF'>[\\d ]+",
+            "repl": "\\1<font color='{{c:credits}}'>{{credits}}"
+        },
+        {
+            "pattern": "(Получено опыта: )<font color='#C8C8B5'>([\\d ]+)",
+            "repl": "\\1<font color='{{g:medPlace}}'>\\2"
+        },
+        {
+            "if": "{{avgXP}} != {{tmenXP}}",
+            "pattern": "(Получено опыта:.*)",
+            "repl": "\\1\n<font color='#929290'>Опыт экипажа: <font color='{{g:medPlace}}'>{{tmenXP}}</font></font>"
+        },
+        {
+            "pattern": " за первую победу в день",
+            "repl": ""
+        },
+        {
+            "pattern": "Достижения в бою",
+            "repl": "Достижения"
+        },
+        {
+            "pattern": "(\\d) степень",
+            "repl": "\\1 ст."
+        }
+    ],
+    "battleStatText": [
+        "WN8: <font color='{{g:XWN8}}'><b>{{WN8}} ({{XWN8}})</b></font>"
+    ],
+    "hideMessagePatterns": [
+        "Рекомендуем выполнить привязку вашего аккаунта к телефону",
+        "Рекомендуем сменить пароль",
+        "Ремонт .* выполнен успешно",
+        "Боекомплект на .* пополнен успешно",
+        "Снаряжение на .* пополнено успешно",
+        "Высадка .*экипажа в Казарму выполнена успешно",
+        "Пересадка .*экипажа выполнена успешно"
+    ],
+    "debugBattleResultMessage": false,
+    "onlineReloadConfig": false,
+    "ignoreBattleType": [2, 4, 7, 8],
+    "showResetButton": false,
+    "textResetButton": "Reset",
+    "dailyAutoReset": true,
+    "dailyAutoResetHour": 4,
+    "enableBattleEndedMessage": true,
+    "battleEndedMessageDefeat": "<font color='#FE0E00'>Fight {{map}} - {{vehicle}} Defeat!</font>",
+    "battleEndedMessageDraw": "<font color='#FE7903'>Fight {{map}} - {{vehicle}} Draw!</font>",
+    "battleEndedMessageWin": "<font color='#60FF00'>Fight {{map}} - {{vehicle}} Victory!</font>",
+    "bgIcon": "../../scripts/client/mods/wotstat/images/bgIcon{{c:XWN8}}.png",
+    "overwriteBattleResultBgIcon": false,
+    "bgIconDefeat": "../../scripts/client/mods/wotstat/images/Defeat.png",
+    "bgIconDraw": "../../scripts/client/mods/wotstat/images/Draw.png",
+    "bgIconWin": "../../scripts/client/mods/wotstat/images/Win.png",
+    "template": [
+        "<font size='12'><textformat leading='-4' tabstops='[50,130]'><font color='#FFCC66'>WN8:</font><tab><font color='{{g:XWN8}}'><b>{{WN8}} ({{XWN8}})</b></font><tab><font color='#FFCC66'><b>{{avgTier:1f}} (+{{avgBattleTierDiff:1f}}) </b>ур</font></textformat>",
+        "<textformat leading='-4' tabstops='[50,130,190]'><font color='#FFCC66'>Победы:</font><tab><font color='{{g:rWIN}}'><b>{{winsCount}}/{{battlesCount}}<tab>{{avgWinRate}}%<tab>{{rWIN}}</b></font>",
+        "<font color='#FFCC66'>Damage:</font><tab><font color='{{g:rDAMAGE}}'><b>{{totalDmg}}<tab>{{avgDamage}}<tab>{{rDAMAGE}}</b></font>",
+        "<font color='#FFCC66'>Kills:</font><tab><font color='{{g:rFRAG}}'><b>{{totalFrag}}<tab>{{avgFrag}}<tab>{{rFRAG}}</b></font>",
+        "<font color='#FFCC66'>Зpoted:</font><tab><font color='{{g:rSPOT}}'><b>{{totalSpot}}<tab>{{avgSpot}}<tab>{{rSPOT}}</b></font>",
+        "<font color='#FFCC66'>Def:</font><tab><font color='{{g:rDEF}}'><b>{{totalDef}}<tab>{{avgDef}}<tab>{{rDEF}}</b></font>",
+        "<font color='#FFCC66'>XP:</font><tab><font color='{{g:medPlace}}'><b>{{totalXP}}<tab>{{avgOriginalXP}}<tab>{{medPlace:1f}}</b></font>",
+        "<font color='#FFCC66'>Credits:</font><tab><font color='{{c:credits}}'><b>{{credits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'><tab>{{avgCredits}} <img src='img://gui/maps/icons/library/CreditsIcon-1.png' width='11' height='11' align='baseline' vspace='-2'></b></font></textformat></font>"
+    ],
+    "showStatByTank": true,
+    "textGeneralPageButton": "Tank Stats",
+    "textByTankPageButton": "General Stats",
+    "byTankTitle": "<font size='13' color='#FFCC66'><textformat leading='-4' tabstops='[70,115,160]'>Tank<tab>Victory<tab>DMG<tab>WN8</textformat></font><hr>",
+    "byTankRow": "<font size='12'><textformat leading='-4' tabstops='[70,115,160]'><font color='#FFE6B3'>{{vehicle}}</font><tab><font color='{{g:rWIN}}'>{{winsCount}}/{{battlesCount}}</font><tab><font color='{{g:rDAMAGE}}'>{{avgDamage}}</font><tab><font color='{{g:XWN8}}'>{{WN8}} ({{XWN8}})</font></textformat></font>",
+    "gradient": {
+        "XWN8": [
+            {"value": 8, "color": "#FE0E00"},
+            {"value": 25, "color": "#FE7903"},
+            {"value": 43, "color": "#F8F400"},
+            {"value": 64, "color": "#60FF00"},
+            {"value": 84, "color": "#02C9B3"},
+            {"value": 96.5, "color": "#D042F3"}
+        ],
+        "rWIN": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
+        ],
+        "rDAMAGE": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
+        ],
+        "rFRAG": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
+        ],
+        "rSPOT": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
+        ],
+        "rDEF": [
+            {"value": 0.13, "color": "#FE0E00"},
+            {"value": 0.44, "color": "#FE7903"},
+            {"value": 0.75, "color": "#F8F400"},
+            {"value": 1.06, "color": "#60FF00"},
+            {"value": 1.33, "color": "#02C9B3"},
+            {"value": 1.58, "color": "#D042F3"}
+        ],
+        "medPlace": [
+            {"value": 1, "color": "#D042F3"},
+            {"value": 3, "color": "#02C9B3"},
+            {"value": 5, "color": "#60FF00"},
+            {"value": 7, "color": "#F8F400"},
+            {"value": 10, "color": "#FE7903"},
+            {"value": 15, "color": "#FE0E00"}
+        ]
+    },
+    "palette" : {
+        "credits": [
+            {"value": -1, "color": "#FE0E00"},
+            {"value": 0, "color": "#FFFFFF"},
+            {"value": 1, "color": "#60FF00"}
+        ],
+        "XWN8": [
+            {"value": 16, "color": "#FE0E00"},
+            {"value": 33, "color": "#FE7903"},
+            {"value": 52, "color": "#F8F400"},
+            {"value": 75, "color": "#60FF00"},
+            {"value": 92, "color": "#02C9B3"},
+            {"value": 100, "color": "#D042F3"}
+        ]
+    }
+}
