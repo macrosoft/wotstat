@@ -78,8 +78,8 @@ class SessionStatistic(object):
         for vl in vals:
             path = vl.asString + '/scripts/client/mods/'
             if os.path.isdir(path):
-                self.configFilePath = path + 'stat_config.json'
-                self.statCacheFilePath = path + 'wotstat/stat_cache.json'
+                self.configFilePath = path + 'wotstat/config.json'
+                self.statCacheFilePath = path + 'wotstat/cache.json'
                 expectedValuesPath = path + 'wotstat/expected_tank_values.json'
                 if os.path.isfile(self.configFilePath):
                     break
