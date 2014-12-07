@@ -340,7 +340,10 @@ class SessionStatistic(object):
         typeExpected = {}
         typeExpectedCount = 0.0
         for idNum in self.expectedValues:
-            vt = vehiclesWG.getVehicleType(idNum)
+            try:
+                vt = vehiclesWG.getVehicleType(idNum)
+            except:
+                continue
             if vt.level == newTier:
                 tierExpectedCount += 1
                 vType = set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(vt.tags)).pop()
