@@ -219,13 +219,13 @@ class SessionStatistic(object):
             if pTypeCompDescr is not None:
                 pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
                 battleTier = max(battleTier, pvt.level)
-                if set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(pvt.tags)).pop() = 'lightTank' \
+                if set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(pvt.tags)).pop() == 'lightTank' \
                     and pvt.level < 8 or pvt.level < 9:
                     elevenTier = False
             if value['personal']['team'] == vehicles[key]['team'] and \
                 value['personal']['originalXP'] < vehicles[key]['xp']:
                 place += 1
-        if elevenTier:
+        if battleTier == 10 and elevenTier:
             battleTier = 11
         proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
                    value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
