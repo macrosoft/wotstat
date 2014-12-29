@@ -18,6 +18,7 @@ from functools import partial
 from gui.shared.utils.requesters import StatsRequester
 from helpers import i18n
 from notification.NotificationListView import NotificationListView
+from notification.NotificationPopUpViewer import NotificationPopUpViewer
 from messenger import MessengerEntry
 from messenger.formatters.service_channel import BattleResultsFormatter
 from Queue import Queue
@@ -633,6 +634,14 @@ def new_nlv_setNotificationList(self):
     self.as_setMessagesListS(formedList)
 
 NotificationListView._NotificationListView__setNotificationList = new_nlv_setNotificationList
+
+old_npuv_sendMessageForDisplay = NotificationPopUpViewer._NotificationPopUpViewer__sendMessageForDisplay
+
+def new_npuv_sendMessageForDisplay(self, notification):
+    if stat.config.get('showPopUp', True):
+        old_npuv_sendMessageForDisplay(self, notification)
+
+NotificationPopUpViewer._NotificationPopUpViewer__sendMessageForDisplay = new_npuv_sendMessageForDisplay
 
 old_brf_format = BattleResultsFormatter.format
 

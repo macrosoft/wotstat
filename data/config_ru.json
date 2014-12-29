@@ -70,6 +70,7 @@
     "textByTankPageButton": "Общая",
     "byTankTitle": "<font size='13' color='#FFCC66'><textformat leading='-4' tabstops='[70,115,160]'>Танк<tab>Победы<tab>Урон<tab>WN8</textformat></font><hr>",
     "byTankRow": "<font size='12'><textformat leading='-4' tabstops='[70,115,160]'><font color='#FFE6B3'>{{vehicle}}</font><tab><font color='{{g:rWIN}}'>{{winsCount}}/{{battlesCount}}</font><tab><font color='{{g:rDAMAGE}}'>{{avgDamage}}</font><tab><font color='{{g:XWN8}}'>{{WN8}} ({{XWN8}})</font></textformat></font>",
+    "showPopUp": true,
     "gradient": {
         "XWN8": [
             {"value": 8, "color": "#FE0E00"},
