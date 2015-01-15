@@ -460,7 +460,7 @@ class SessionStatistic(object):
                 else int(max(min(values['EFF']*(values['EFF']*(values['EFF']*(values['EFF']*\
                 (values['EFF']*(0.00000000000000003388*values['EFF'] - 0.0000000000002469) + \
                 0.00000000069335) - 0.00000095342) + 0.0006656) -0.1485) - 0.85, 100), 0))
-            values['vEFF'] = max(0, int(values['avgDamage']*(0.2 + 1.5/values['avgTier']) + \
+            values['BR'] = max(0, int(values['avgDamage']*(0.2 + 1.5/values['avgTier']) + \
                 values['avgFrag'] * (350 - values['avgTier'] * 20) + \
                 ((values['avgAssistRadio']/2)*(0.2 + 1.5/values['avgTier'])) + \
                 ((values['avgAssistTrack']/2)*(0.2 + 1.5/values['avgTier'])) + \
@@ -468,7 +468,7 @@ class SessionStatistic(object):
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgHitsRate', \
                 'avgEffHitsRate', 'avgAssist', 'avgXP', 'avgOriginalXP', 'avgPremXP', 'avgCredits', 'avgTier', \
-                'avgBattleTier', 'medPlace', 'WN6', 'XWN6', 'EFF', 'XEFF', 'vEFF']:
+                'avgBattleTier', 'medPlace', 'WN6', 'XWN6', 'EFF', 'XEFF', 'BR']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
