@@ -462,8 +462,8 @@ class SessionStatistic(object):
                 0.00000000069335) - 0.00000095342) + 0.0006656) -0.1485) - 0.85, 100), 0))
             values['vEFF'] = max(0, int(values['avgDamage']*(1.5/(values['avgTier'] + 0.2)) + \
                 values['avgFrag'] * (350 - values['avgTier'] * 20) + \
-                ((values['avgAssistRadio']/2)*(1.5/(values['avgTier'] + 0.2)) + \
-                ((values['avgAssistTrack']/2)*(1.5/(values['avgTier'] + 0.2)) + \
+                ((values['avgAssistRadio']/2)*(1.5/(values['avgTier'] + 0.2))) + \
+                ((values['avgAssistTrack']/2)*(1.5/(values['avgTier'] + 0.2))) + \
                 values['avgSpot'] * 200 + values['avgCap'] * 150 + values['avgDef'] * 150 ))
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgHitsRate', \
