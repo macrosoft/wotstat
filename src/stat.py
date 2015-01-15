@@ -460,11 +460,11 @@ class SessionStatistic(object):
                 else int(max(min(values['EFF']*(values['EFF']*(values['EFF']*(values['EFF']*\
                 (values['EFF']*(0.00000000000000003388*values['EFF'] - 0.0000000000002469) + \
                 0.00000000069335) - 0.00000095342) + 0.0006656) -0.1485) - 0.85, 100), 0))
-            values['vEFF'] = max(0, int(values['avgDamage']*(1.5/(values['avgTier'] + 0.2)) + \
+            values['vEFF'] = max(0, int(values['avgDamage']*(0.2 + 1.5/values['avgTier']) + \
                 values['avgFrag'] * (350 - values['avgTier'] * 20) + \
-                ((values['avgAssistRadio']/2)*(1.5/(values['avgTier'] + 0.2))) + \
-                ((values['avgAssistTrack']/2)*(1.5/(values['avgTier'] + 0.2))) + \
-                values['avgSpot'] * 200 + values['avgCap'] * 150 + values['avgDef'] * 150 ))
+                ((values['avgAssistRadio']/2)*(0.2 + 1.5/values['avgTier'])) + \
+                ((values['avgAssistTrack']/2)*(0.2 + 1.5/values['avgTier'])) + \
+                values['avgSpot'] * 200 + values['avgCap'] * 15 + values['avgDef'] * 15 ))
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgHitsRate', \
                 'avgEffHitsRate', 'avgAssist', 'avgXP', 'avgOriginalXP', 'avgPremXP', 'avgCredits', 'avgTier', \
