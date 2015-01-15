@@ -465,10 +465,16 @@ class SessionStatistic(object):
                 ((values['avgAssistRadio']/2)*(0.2 + 1.5/values['avgTier'])) + \
                 ((values['avgAssistTrack']/2)*(0.2 + 1.5/values['avgTier'])) + \
                 values['avgSpot'] * 200 + values['avgCap'] * 15 + values['avgDef'] * 15 ))
+            values['WN7'] = max(0, int((1240 - 1040/(min(values['avgTier'], 6))**0.164)*values['avgFrag'] + \
+                values['avgDamage']*530/(184*math.exp(0.24*values['avgTier']) + 130) + \
+                values['avgSpot']*125*(min(values['avgTier'], 3))/3 + min(values['avgDef'], 2.2)*100 + \
+                ((185/(0.17 + math.exp((values['avgWinRate'] - 35)* -0.134))) - 500)*0.45 - \
+                ((5-min(values['avgTier'], 5))*125) / \
+                (1+math.exp((values['avgTier'] - (values['battlesCount']/220)**(3/values['avgTier']))*1.5)) ))                
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgHitsRate', \
                 'avgEffHitsRate', 'avgAssist', 'avgXP', 'avgOriginalXP', 'avgPremXP', 'avgCredits', 'avgTier', \
-                'avgBattleTier', 'medPlace', 'WN6', 'XWN6', 'EFF', 'XEFF', 'BR']:
+                'avgBattleTier', 'medPlace', 'WN6', 'XWN6', 'EFF', 'XEFF', 'BR', 'WN7']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
