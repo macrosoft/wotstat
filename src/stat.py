@@ -254,7 +254,9 @@ class SessionStatistic(object):
             'credits': proceeds,
             'gold': value['personal']['gold'] - value['personal']['autoEquipCost'][1] - value['personal']['autoLoadCost'][1],
             'battleTier': battleTier,
-            'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack']
+            'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack'],
+            'assistRadio': value['personal']['damageAssistedRadio'],
+            'assistTrack': value['personal']['damageAssistedTrack']
         }
         extended = {
             'vehicle': battle['vehicle'],
@@ -378,7 +380,8 @@ class SessionStatistic(object):
         totalBattleTier = 0
         valuesKeys = ['winsCount', 'defeatsCount', 'drawsCount', 'totalDmg', 'totalFrag', 'totalSpot',\
             'totalDef', 'totalCap', 'totalShots', 'totalHits', 'totalPierced', 'totalAssist',\
-            'totalXP', 'totalOriginXP', 'totalFreeXP', 'credits', 'gold']
+            'totalXP', 'totalOriginXP', 'totalFreeXP', 'credits', 'gold',\
+            'totalAssistRadio', 'totalAssistTrack']
         for key in valuesKeys:
             values[key] = 0
         expKeys = ['expDamage', 'expFrag', 'expSpot', 'expDef', 'expWinRate']
@@ -397,6 +400,8 @@ class SessionStatistic(object):
             values['totalHits'] += battle['hits']
             values['totalPierced'] += battle['pierced']
             values['totalAssist'] += battle['assist']
+            values['totalAssistRadio'] += battle['assistRadio']
+            values['totalAssistTrack'] += battle['assistTrack']
             values['totalXP'] += battle['xp']
             values['totalOriginXP'] += battle['originalXP']
             values['totalFreeXP'] += battle['freeXP']
@@ -424,6 +429,8 @@ class SessionStatistic(object):
             values['avgHitsRate'] = float(values['totalHits'])/max(1, values['totalShots'])*100
             values['avgEffHitsRate'] = float(values['totalPierced'])/max(1, values['totalHits'])*100
             values['avgAssist'] = int(values['totalAssist'])/values['battlesCount']
+            values['avgAssistRadio'] = int(values['totalAssistRadio'])/values['battlesCount']
+            values['avgAssistTrack'] = int(values['totalAssistTrack'])/values['battlesCount']
             values['avgXP'] = int(values['totalXP']/values['battlesCount'])
             values['avgOriginalXP'] = int(values['totalOriginXP']/values['battlesCount'])
             values['avgPremXP'] = int(1.5*values['avgOriginalXP'])
@@ -453,10 +460,21 @@ class SessionStatistic(object):
                 else int(max(min(values['EFF']*(values['EFF']*(values['EFF']*(values['EFF']*\
                 (values['EFF']*(0.00000000000000003388*values['EFF'] - 0.0000000000002469) + \
                 0.00000000069335) - 0.00000095342) + 0.0006656) -0.1485) - 0.85, 100), 0))
+            values['BR'] = max(0, int(values['avgDamage']*(0.2 + 1.5/values['avgTier']) + \
+                values['avgFrag'] * (350 - values['avgTier'] * 20) + \
+                ((values['avgAssistRadio']/2)*(0.2 + 1.5/values['avgTier'])) + \
+                ((values['avgAssistTrack']/2)*(0.2 + 1.5/values['avgTier'])) + \
+                values['avgSpot'] * 200 + values['avgCap'] * 15 + values['avgDef'] * 15 ))
+            values['WN7'] = max(0, int((1240 - 1040/(min(values['avgTier'], 6))**0.164)*values['avgFrag'] + \
+                values['avgDamage']*530/(184*math.exp(0.24*values['avgTier']) + 130) + \
+                values['avgSpot']*125*(min(values['avgTier'], 3))/3 + min(values['avgDef'], 2.2)*100 + \
+                ((185/(0.17 + math.exp((values['avgWinRate'] - 35)* -0.134))) - 500)*0.45 - \
+                ((5-min(values['avgTier'], 5))*125) / \
+                (1+math.exp((values['avgTier'] - (values['battlesCount']/220)**(3/values['avgTier']))*1.5)) ))                
         else:
             for key in ['avgWinRate', 'avgDamage', 'avgFrag', 'avgSpot', 'avgDef', 'avgCap', 'avgHitsRate', \
                 'avgEffHitsRate', 'avgAssist', 'avgXP', 'avgOriginalXP', 'avgPremXP', 'avgCredits', 'avgTier', \
-                'avgBattleTier', 'medPlace', 'WN6', 'XWN6', 'EFF', 'XEFF']:
+                'avgBattleTier', 'medPlace', 'WN6', 'XWN6', 'EFF', 'XEFF', 'BR', 'WN7']:
                 values[key] = 0
             for key in expKeys:
                 values[key] = 1
