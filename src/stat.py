@@ -99,7 +99,8 @@ class SessionStatistic(object):
                 self.startDate = self.cache.get('date', self.getWorkDate())
                 if self.cache.get('version', 0) == self.cacheVersion and \
                     (self.startDate == self.getWorkDate() or \
-                    not self.config.get('dailyAutoReset', True)):
+                    not self.config.get('dailyAutoReset', True)) and \
+                    not self.config.get('clientReloadReset', False):
                     if self.cache.get('players', {}).has_key(self.playerName):
                         self.battles = self.cache['players'][self.playerName]['battles']
                     invalidCache = False
