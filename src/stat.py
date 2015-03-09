@@ -211,24 +211,24 @@ class SessionStatistic(object):
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
         result = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam'])\
             else (0 if not int(value['common']['winnerTeam']) else -1)
-        battleTier = 1
-        elevenTier = True
         place = 1
         arenaUniqueID = value['arenaUniqueID']
+        squadsTier = {}
         vehicles = value['vehicles']
-        for key in vehicles.keys():
-            pTypeCompDescr = vehicles[key]['typeCompDescr']
+        for vehicle in vehicles.values():
+            pTypeCompDescr = vehicle['typeCompDescr']
             if pTypeCompDescr is not None:
                 pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
-                battleTier = max(battleTier, pvt.level)
-                if set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(pvt.tags)).pop() == 'lightTank' \
-                    and pvt.level < 8 or pvt.level < 9:
-                    elevenTier = False
-            if value['personal']['team'] == vehicles[key]['team'] and \
-                value['personal']['originalXP'] < vehicles[key]['xp']:
+                tier = pvt.level
+                if set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(pvt.tags)).pop() == 'lightTank' and tier > 5:
+                    tier += 1
+                squadId = value['players'][vehicle['accountDBID']]['prebattleID']
+                squadsTier[squadId] = tier
+            if value['personal']['team'] == vehicle['team'] and \
+                value['personal']['originalXP'] < vehicle['xp']:
                 place += 1
-        if battleTier == 10 and elevenTier:
-            battleTier = 11
+        battleTier = 11 if max(squadsTier.values()) == 10 and min(squadsTier.values()) == 9 \
+            else max(squadsTier.values())
         proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
                    value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
         tmenXP = value['personal']['tmenXP']
