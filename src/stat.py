@@ -223,7 +223,7 @@ class SessionStatistic(object):
                 if set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(pvt.tags)).pop() == 'lightTank' and tier > 5:
                     tier += 1
                 squadId = value['players'][vehicle['accountDBID']]['prebattleID']
-                squadsTier[squadId] = tier
+                squadsTier[squadId] = max(squadsTier.get(squadId, 0), tier)
             if value['personal']['team'] == vehicle['team'] and \
                 value['personal']['originalXP'] < vehicle['xp']:
                 place += 1
