@@ -493,10 +493,10 @@ class SessionStatistic(object):
         values['WN8'] = 980*values['rDAMAGEc'] + 210*values['rDAMAGEc']*values['rFRAGc'] + \
             155*values['rFRAGc']*values['rSPOTc'] + 75*values['rDEFc']*values['rFRAGc'] + \
             145*min(1.8, values['rWINc'])
-        values['XWN8'] = 100 if values['WN8'] > 3400 \
+        values['XWN8'] = 100 if values['WN8'] > 3500 \
             else int(max(min(values['WN8']*(values['WN8']*(values['WN8']*(values['WN8']*(values['WN8']*\
-            (0.00000000000000000009553*values['WN8'] - 0.0000000000000001644) - 0.00000000000426) +\
-            0.0000000197) - 0.00003192) + 0.056265) - 0.157, 100), 0))
+            (-0.00000000000000000000176*values['WN8'] + 0.0000000000000008049) - 0.0000000000079383) +\
+            0.00000002667) - 0.0000392) + 0.05981) - 0.784, 100), 0))
         values['WN8'] = int(values['WN8'])
         values['avgDamage'] = int(values['avgDamage'])
         (gradient, palette) = self.refreshColorMacros(values)
