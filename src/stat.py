@@ -207,31 +207,32 @@ class SessionStatistic(object):
             return
         arenaTypeID = value['common']['arenaTypeID']
         arenaType = ArenaType.g_cache[arenaTypeID]
-        vehicleCompDesc = value['personal']['typeCompDescr']
+        personal = value['personal'].itervalues().next()
+        vehicleCompDesc = personal['typeCompDescr']
         vt = vehiclesWG.getVehicleType(vehicleCompDesc)
-        result = 1 if int(value['personal']['team']) == int(value['common']['winnerTeam'])\
+        result = 1 if int(personal['team']) == int(value['common']['winnerTeam'])\
             else (0 if not int(value['common']['winnerTeam']) else -1)
         place = 1
         arenaUniqueID = value['arenaUniqueID']
         squadsTier = {}
         vehicles = value['vehicles']
         for vehicle in vehicles.values():
-            pTypeCompDescr = vehicle['typeCompDescr']
+            pTypeCompDescr = vehicle[0]['typeCompDescr']
             if pTypeCompDescr is not None:
                 pvt = vehiclesWG.getVehicleType(pTypeCompDescr)
                 tier = pvt.level
                 if set(vehiclesWG.VEHICLE_CLASS_TAGS.intersection(pvt.tags)).pop() == 'lightTank' and tier > 5:
                     tier += 1
-                squadId = value['players'][vehicle['accountDBID']]['prebattleID']
+                squadId = value['players'][vehicle[0]['accountDBID']]['prebattleID']
                 squadsTier[squadId] = max(squadsTier.get(squadId, 0), tier)
-            if value['personal']['team'] == vehicle['team'] and \
-                value['personal']['originalXP'] < vehicle['xp']:
+            if personal['team'] == vehicle[0]['team'] and \
+                personal['originalXP'] < vehicle[0]['xp']:
                 place += 1
         battleTier = 11 if max(squadsTier.values()) == 10 and min(squadsTier.values()) == 9 \
             else max(squadsTier.values())
-        proceeds = value['personal']['credits'] - value['personal']['autoRepairCost'] -\
-                   value['personal']['autoEquipCost'][0] - value['personal']['autoLoadCost'][0]
-        tmenXP = value['personal']['tmenXP']
+        proceeds = personal['credits'] - personal['autoRepairCost'] -\
+                   personal['autoEquipCost'][0] - personal['autoLoadCost'][0]
+        tmenXP = personal['tmenXP']
         if 'premium' in vt.tags:
             tmenXP = int(1.5*tmenXP)
         battle = {
@@ -240,32 +241,32 @@ class SessionStatistic(object):
             'vehicle': vt.name.replace(':', '-'),
             'tier': vt.level,
             'result': result,
-            'damage': value['personal']['damageDealt'],
-            'frag': value['personal']['kills'],
-            'spot': value['personal']['spotted'],
-            'def': value['personal']['droppedCapturePoints'],
-            'cap': value['personal']['capturePoints'],
-            'shots': value['personal']['shots'],
-            'hits': value['personal']['directHits'],
-            'pierced': value['personal']['piercings'],
-            'xp': value['personal']['xp'],
-            'originalXP': value['personal']['originalXP'],
-            'freeXP': value['personal']['freeXP'],
+            'damage': personal['damageDealt'],
+            'frag': personal['kills'],
+            'spot': personal['spotted'],
+            'def': personal['droppedCapturePoints'],
+            'cap': personal['capturePoints'],
+            'shots': personal['shots'],
+            'hits': personal['directHits'],
+            'pierced': personal['piercings'],
+            'xp': personal['xp'],
+            'originalXP': personal['originalXP'],
+            'freeXP': personal['freeXP'],
             'place': place,
             'credits': proceeds,
-            'gold': value['personal']['gold'] - value['personal']['autoEquipCost'][1] - value['personal']['autoLoadCost'][1],
+            'gold': personal['gold'] - personal['autoEquipCost'][1] - personal['autoLoadCost'][1],
             'battleTier': battleTier,
-            'assist': value['personal']['damageAssistedRadio'] + value['personal']['damageAssistedTrack'],
-            'assistRadio': value['personal']['damageAssistedRadio'],
-            'assistTrack': value['personal']['damageAssistedTrack']
+            'assist': personal['damageAssistedRadio'] + personal['damageAssistedTrack'],
+            'assistRadio': personal['damageAssistedRadio'],
+            'assistTrack': personal['damageAssistedTrack']
         }
         extended = {
             'vehicle': battle['vehicle'],
             'map': battle['map'],
             'result': result,
-            'autoRepair': value['personal']['autoRepairCost'],
-            'autoEquip': value['personal']['autoEquipCost'][0],
-            'autoLoad': value['personal']['autoLoadCost'][0],
+            'autoRepair': personal['autoRepairCost'],
+            'autoEquip': personal['autoEquipCost'][0],
+            'autoLoad': personal['autoLoadCost'][0],
             'tmenXP': tmenXP
         }
         if self.config.get('dailyAutoReset', True) and self.startDate != stat.getWorkDate():
@@ -295,10 +296,10 @@ class SessionStatistic(object):
     def mainLoop(self):
         while True:
             arenaUniqueID = self.queue.get()
-            stat.battleResultsAvailable.wait()
+            self.battleResultsAvailable.wait()
             self.battleResultsBusy.acquire()
-            shotBRCallback = partial(self.battleResultsCallback, arenaUniqueID)
-            BigWorld.player().battleResultsCache.get(arenaUniqueID, shotBRCallback)
+            BigWorld.player().battleResultsCache.get(arenaUniqueID,\
+                lambda resID, value: self.battleResultsCallback(arenaUniqueID, resID, value, None))
 
     def refreshColorMacros(self, values):
         gradient = {}
@@ -666,7 +667,7 @@ old_brf_format = BattleResultsFormatter.format
 
 def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
-    arenaUniqueID = message.data.get('arenaUniqueID', 0)
+    arenaUniqueID = message.data.itervalues().next().get('arenaUniqueID', 0)
     stat.queue.put(arenaUniqueID)
     return result
 
