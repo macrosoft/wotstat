@@ -14,7 +14,6 @@ import threading
 from Account import Account
 from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
-from functools import partial
 from gui.shared.utils.requesters import StatsRequester
 from helpers import i18n
 from notification.NotificationListView import NotificationListView
@@ -193,13 +192,9 @@ class SessionStatistic(object):
             })
         return message
 
-    def addLaterArenaUniqueID(self, arenaUniqueID):
-        self.queue.put(arenaUniqueID)
-
     def battleResultsCallback(self, arenaUniqueID, responseCode, value = None, revision = 0):
         if responseCode == AccountCommands.RES_NON_PLAYER or responseCode == AccountCommands.RES_COOLDOWN:
-            addArenaUniqueID = partial(self.addLaterArenaUniqueID, arenaUniqueID)
-            BigWorld.callback(1.0, addArenaUniqueID)
+            BigWorld.callback(1.0, lambda: self.queue.put(arenaUniqueID))
             self.battleResultsBusy.release()
             return
         if responseCode < 0:
