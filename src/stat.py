@@ -14,8 +14,6 @@ import threading
 from Account import Account
 from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
-from gui.shared.utils.requesters import StatsRequester
-from helpers import i18n
 from notification.NotificationListView import NotificationListView
 from notification.NotificationPopUpViewer import NotificationPopUpViewer
 from messenger import MessengerEntry
@@ -169,7 +167,7 @@ class SessionStatistic(object):
                 'buttonsLayout': [],
                 'message': msg,
                 'type': 'black',
-                'icon': '../maps/icons/library/PersonalAchievementsIcon-1.png',
+                'icon': self.config.get('icon', "../maps/icons/library/BattleResultIcon-1.png"),
             },
             'entityID': 99999,
             'auxData': ['GameGreeting']
@@ -327,7 +325,7 @@ class SessionStatistic(object):
                 colors = self.config.get('palette', {})[key]
                 palette[key] = colors[-1]['color']
                 for item in reversed(colors):
-                    if values[key] <= item['value']:
+                    if values[key] < item['value']:
                         palette[key] = item['color']
                     else:
                         break

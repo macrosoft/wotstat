@@ -48,6 +48,7 @@
     "dailyAutoReset": true,
     "dailyAutoResetHour": 3,
     "clientReloadReset": false,
+    "icon": "../maps/icons/library/BattleResultIcon-1.png",
     "bgIcon": "../../scripts/client/mods/wotstat/img/bgIcon{{c:XWN8}}.png",
     "overwriteBattleResultBgIcon": false,
     "bgIconDefeat": "../../scripts/client/mods/wotstat/img/Defeat.png",
