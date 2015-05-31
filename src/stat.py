@@ -14,6 +14,7 @@ import threading
 from Account import Account
 from account_helpers import BattleResultsCache
 from items import vehicles as vehiclesWG
+from helpers import i18n
 from notification.NotificationListView import NotificationListView
 from notification.NotificationPopUpViewer import NotificationPopUpViewer
 from messenger import MessengerEntry
@@ -660,8 +661,31 @@ old_brf_format = BattleResultsFormatter.format
 
 def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
-    arenaUniqueID = message.data.itervalues().next().get('arenaUniqueID', 0)
+    data = message.data.itervalues().next()
+    arenaUniqueID = data.get('arenaUniqueID', 0)
     stat.queue.put(arenaUniqueID)
+    if stat.config.get('enableBattleEndedMessage', True) and hasattr(BigWorld.player(), 'arena'):
+        if BigWorld.player().arena.arenaUniqueID != arenaUniqueID:
+            isWinner = data.get('isWinner', 0)
+            battleEndedMessage = ''
+            if isWinner < 0:
+                battleEndedMessage = stat.config.get('battleEndedMessageDefeat', '')
+            elif isWinner > 0:
+                battleEndedMessage = stat.config.get('battleEndedMessageWin', '')
+            else:
+                battleEndedMessage = stat.config.get('battleEndedMessageDraw', '')
+            battleEndedMessage = battleEndedMessage.encode('utf-8')
+            vehicleCompDesc = data.get('vehTypeCompDescr', None)
+            vt = vehiclesWG.getVehicleType(vehicleCompDesc)
+            battleEndedMessage = battleEndedMessage.replace('{{vehicle}}', vt.userString)
+            name = vt.name.replace(':', '-')
+            battleEndedMessage = battleEndedMessage.replace('{{vehicle-name}}', name)
+            arenaTypeID = data.get('arenaTypeID', 0)
+            arenaType = ArenaType.g_cache[arenaTypeID]
+            arenaName = i18n.makeString(arenaType.name)
+            battleEndedMessage = battleEndedMessage.replace('{{map}}', arenaName)
+            battleEndedMessage = battleEndedMessage.replace('{{map-name}}', arenaType.geometryName)
+            MessengerEntry.g_instance.gui.addClientMessage(battleEndedMessage)
     return result
 
 BattleResultsFormatter.format = new_brf_format
