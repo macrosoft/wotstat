@@ -683,8 +683,12 @@ def new_brf_format(self, message, *args):
             arenaTypeID = data.get('arenaTypeID', 0)
             arenaType = ArenaType.g_cache[arenaTypeID]
             arenaName = i18n.makeString(arenaType.name)
+            xp = data.get('xp', 0)
+            credits = data.get('credits', 0)
             battleEndedMessage = battleEndedMessage.replace('{{map}}', arenaName)
             battleEndedMessage = battleEndedMessage.replace('{{map-name}}', arenaType.geometryName)
+            battleEndedMessage = battleEndedMessage.replace('{{xp}}', str(xp))
+            battleEndedMessage = battleEndedMessage.replace('{{credits}}', str(credits))
             MessengerEntry.g_instance.gui.addClientMessage(battleEndedMessage)
     return result
 
