@@ -25,6 +25,8 @@ from debug_utils import *
 GENERAL = 0
 BY_TANK = 1
 
+#BattleResultsCache.clean = lambda *args: None
+
 def hexToRgb(hex):
     return [int(hex[i:i+2], 16) for i in range(1,6,2)]
 
@@ -488,10 +490,10 @@ class SessionStatistic(object):
         values['WN8'] = 980*values['rDAMAGEc'] + 210*values['rDAMAGEc']*values['rFRAGc'] + \
             155*values['rFRAGc']*values['rSPOTc'] + 75*values['rDEFc']*values['rFRAGc'] + \
             145*min(1.8, values['rWINc'])
-        values['XWN8'] = 100 if values['WN8'] > 3500 \
+        values['XWN8'] = 100 if values['WN8'] > 3550 \
             else int(max(min(values['WN8']*(values['WN8']*(values['WN8']*(values['WN8']*(values['WN8']*\
-            (-0.00000000000000000000176*values['WN8'] + 0.0000000000000008049) - 0.0000000000079383) +\
-            0.00000002667) - 0.0000392) + 0.05981) - 0.784, 100), 0))
+            (-0.00000000000000000004164*values['WN8'] + 0.000000000000001176) - 0.000000000009033) +\
+            0.000000027466) - 0.00003804) + 0.05819) - 0.965, 100), 0))
         values['WN8'] = int(values['WN8'])
         values['avgDamage'] = int(values['avgDamage'])
         (gradient, palette) = self.refreshColorMacros(values)
