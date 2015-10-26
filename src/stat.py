@@ -663,12 +663,11 @@ old_brf_format = BattleResultsFormatter.format
 
 def new_brf_format(self, message, *args):
     result = old_brf_format(self, message, *args)
-    data = message.data.itervalues().next()
-    arenaUniqueID = data.get('arenaUniqueID', 0)
+    arenaUniqueID = message.data.get('arenaUniqueID', 0)
     stat.queue.put(arenaUniqueID)
     if stat.config.get('enableBattleEndedMessage', True) and hasattr(BigWorld.player(), 'arena'):
         if BigWorld.player().arena.arenaUniqueID != arenaUniqueID:
-            isWinner = data.get('isWinner', 0)
+            isWinner = message.data.get('isWinner', 0)
             battleEndedMessage = ''
             if isWinner < 0:
                 battleEndedMessage = stat.config.get('battleEndedMessageDefeat', '')
@@ -677,16 +676,16 @@ def new_brf_format(self, message, *args):
             else:
                 battleEndedMessage = stat.config.get('battleEndedMessageDraw', '')
             battleEndedMessage = battleEndedMessage.encode('utf-8')
-            vehicleCompDesc = data.get('vehTypeCompDescr', None)
+            vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
             vt = vehiclesWG.getVehicleType(vehicleCompDesc)
             battleEndedMessage = battleEndedMessage.replace('{{vehicle}}', vt.userString)
             name = vt.name.replace(':', '-')
             battleEndedMessage = battleEndedMessage.replace('{{vehicle-name}}', name)
-            arenaTypeID = data.get('arenaTypeID', 0)
+            arenaTypeID = message.data.get('arenaTypeID', 0)
             arenaType = ArenaType.g_cache[arenaTypeID]
             arenaName = i18n.makeString(arenaType.name)
-            xp = data.get('xp', 0)
-            credits = data.get('credits', 0)
+            xp = message.data.get('xp', 0)
+            credits = message.data.get('credits', 0)
             battleEndedMessage = battleEndedMessage.replace('{{map}}', arenaName)
             battleEndedMessage = battleEndedMessage.replace('{{map-name}}', arenaType.geometryName)
             battleEndedMessage = battleEndedMessage.replace('{{xp}}', str(xp))
