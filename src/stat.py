@@ -676,7 +676,8 @@ def new_brf_format(self, message, *args):
             else:
                 battleEndedMessage = stat.config.get('battleEndedMessageDraw', '')
             battleEndedMessage = battleEndedMessage.encode('utf-8')
-            vehicleCompDesc = message.data.get('vehTypeCompDescr', None)
+            playerVehicles = message.data['playerVehicles'].itervalues().next()
+            vehicleCompDesc = playerVehicles['vehTypeCompDescr']
             vt = vehiclesWG.getVehicleType(vehicleCompDesc)
             battleEndedMessage = battleEndedMessage.replace('{{vehicle}}', vt.userString)
             name = vt.name.replace(':', '-')
