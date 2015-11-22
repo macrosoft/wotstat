@@ -1,6 +1,6 @@
 import py_compile, zipfile, os
 
-WOTVersion = "0.9.12 Common Test"
+WOTVersion = "0.9.12"
 language = 'ru' # 'ru' or 'en'
 
 if os.path.exists("wotstat.zip"):
